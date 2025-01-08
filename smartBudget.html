@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Budget</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-main">
+                <h1><i class="fas fa-brain"></i> Smart Budget</h1>
+            </div>
+            <div class="app-controls">
+                <button class="language-toggle" title="Change language">
+                    <i class="fas fa-globe"></i>
+                    <span class="lang-text">EN</span>
+                </button>
+                <button class="theme-toggle" title="Change theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="btn-icon" onclick="window.location.href='index.html'" title="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="smart-budget-section">
+            <!-- Statistics Dashboard -->
+            <div class="stats-dashboard">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Expenses</h3>
+                        <span class="stat-value total-expenses">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Monthly Average</h3>
+                        <span class="stat-value monthly-average">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Savings Potential</h3>
+                        <span class="stat-value savings-potential">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested Budget Panel -->
+            <div class="suggested-budget">
+                <!-- Will be filled dynamically -->
+            </div>
+
+            <!-- Recommendations Panel -->
+            <div class="smart-budget-recommendations">
+                <!-- Will be filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        import SmartBudget from './smartBudget.js';
+        import SmartBudgetUI from './smartBudgetUI.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load transactions from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            let transactions = [];
+            
+            if (currentUser) {
+                const storedTransactions = localStorage.getItem(`transactions_${currentUser.id}`);
+                if (storedTransactions) {
+                    transactions = JSON.parse(storedTransactions);
+                    console.log('Transactions loaded:', transactions);
+                }
+            }
+
+            // Initialize with loaded transactions
+            const smartBudget = new SmartBudget(transactions);
+            const smartBudgetUI = new SmartBudgetUI(smartBudget);
+            smartBudgetUI.updateUI();
+
+            // Listen for transaction updates
+            window.addEventListener('transactionsUpdated', (event) => {
+                console.log('TransactionsUpdated event received');
+                const updatedTransactions = event.detail?.transactions || [];
+                console.log('New transactions:', updatedTransactions);
+                smartBudget.updateTransactions(updatedTransactions);
+                smartBudgetUI.updateUI();
+            });
+        });
+    </script>
+</body>
+
+</html>

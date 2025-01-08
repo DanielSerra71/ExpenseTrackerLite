@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos Personal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Agregamos Font Awesome para iconos modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div id="notification-container"></div>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-main">
+                <h1>
+                    <i class="fas fa-wallet"></i>
+                    <span>Expense Control</span>
+                </h1>
+                <div class="sub-nav">
+                    <button class="icon-btn reports-toggle" title="View Reports"
+                        onclick="window.location.href='reports.html'">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button class="icon-btn bank-toggle" title="Bank Connection"
+                        onclick="window.location.href='bankConnection.html'">
+                        <i class="fas fa-university"></i>
+                    </button>
+                    <button class="icon-btn smart-budget-toggle" title="Smart Budget"
+                        onclick="window.location.href='smartBudget.html'">
+                        <i class="fas fa-brain"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="app-controls">
+                <button id="userButton" class="user-toggle" title="User">
+                    <i class="fas fa-user-clock"></i>
+                    <span class="user-name">Guest</span>
+                </button>
+                <button class="theme-toggle" title="Change theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <div class="backup-controls">
+                    <div class="dropdown">
+                        <button id="backupBtn" class="btn-icon" title="Crear Backup">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <button id="exportJson" data-translate="exportJson">
+                                <i class="fas fa-file-code"></i> Exportar JSON
+                            </button>
+                            <button id="exportCsv" data-translate="exportCsv">
+                                <i class="fas fa-file-csv"></i> Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                    <button id="restoreBtn" class="btn-icon" title="Restaurar Backup">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="balance-card">
+            <h2>Total Balance</h2>
+            <p id="balance">$0.00</p>
+            <div class="summary">
+                <div class="summary-card income">
+                    <i class="fas fa-arrow-up"></i>
+                    <h3>Income</h3>
+                    <p id="income" class="money plus">$0.00</p>
+                </div>
+                <div class="summary-card expense">
+                    <i class="fas fa-arrow-down"></i>
+                    <h3>Expenses</h3>
+                    <p id="expense" class="money minus">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="monthly-summary">
+            <h3><i class="fas fa-calendar-alt"></i> Monthly Summary</h3>
+            <div class="month-selector">
+                <button id="prevMonth" class="btn-icon">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h4 id="currentMonth">Abril 2024</h4>
+                <button id="nextMonth" class="btn-icon">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="monthly-stats">
+                <div class="stat-card">
+                    <h5>Monthly Income</h5>
+                    <p id="monthIncome">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h5>Monthly Expenses</h5>
+                    <p id="monthExpense">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h5>Monthly Balance</h5>
+                    <p id="monthBalance">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="transaction-form">
+            <h3><i class="fas fa-plus-circle"></i> New Transaction</h3>
+            <form id="form">
+                <div class="form-group">
+                    <label for="transaction-type">Transaction Type</label>
+                    <select id="transaction-type" required>
+                        <option value="">Select type</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preset-transactions">Frequent Transactions</label>
+                    <select id="preset-transactions">
+                        <option value="">Select or create new</option>
+                        <option value="income-presets-header" disabled style="font-weight: bold; background-color: var(--bg-color);">
+                            Frequent Income
+                        </option>
+                        <option value="salary">Salary</option>
+                        <option value="freelance">Freelance Work</option>
+                        <option value="investments">Investments</option>
+                        <option value="rent">Rent</option>
+                        <option value="bonus">Bonus</option>
+
+                        <option value="expense-presets-header" disabled style="font-weight: bold; background-color: var(--bg-color);">
+                            Frequent Expenses
+                        </option>
+                        <option value="rent-expense">Rent/Mortgage</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="transport">Transport</option>
+                        <option value="internet">Internet/Phone</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="restaurants">Restaurants</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <div class="description-input-group">
+                        <input type="text" id="description" required>
+                        <button type="button" id="save-preset" class="btn-icon" title="Guardar como preset">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" required step="0.01">
+                    <small>Enter positive amount</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-date">Date</label>
+                    <input type="date" id="transaction-date" required>
+                    <small>Select transaction date</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option value="income-categories-header" disabled style="font-weight: bold;">Income Categories</option>
+                        <option value="salary">Salary</option>
+                        <option value="business">Business</option>
+                        <option value="investments">Investments</option>
+                        <option value="extras">Extras</option>
+
+                        <option value="expense-categories-header" disabled style="font-weight: bold;">Expense Categories</option>
+                        <option value="housing">Housing</option>
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="services">Services</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="education">Education</option>
+                        <option value="shopping">Shopping</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-plus"></i> Add Transaction
+                </button>
+            </form>
+        </div>
+
+        <div class="transactions-section">
+            <h3><i class="fas fa-list"></i> Transaction History</h3>
+            <div class="date-filters">
+                <select id="dateFilterType">
+                    <option value="all">All history</option>
+                    <option value="custom">Custom range</option>
+                    <option value="month">Specific month</option>
+                    <option value="week">Last week</option>
+                    <option value="today">Today</option>
+                </select>
+
+                <div id="customDateFilter" class="custom-date-filter" style="display: none;">
+                    <input type="date" id="startDate">
+                    <span>to</span>
+                    <input type="date" id="endDate">
+                </div>
+
+                <div id="monthFilter" class="month-filter" style="display: none;">
+                    <input type="month" id="specificMonth">
+                </div>
+            </div>
+            <div class="filters">
+                <select id="filter-category">
+                    <option value="todas">All categories</option>
+                    <option value="income-header" disabled style="font-weight: bold;">Income Categories</option>
+                    <option value="salary">Salary</option>
+                    <option value="business">Business</option>
+                    <option value="investments">Investments</option>
+                    <option value="extras">Extras</option>
+
+                    <option value="expense-header" disabled style="font-weight: bold;">Expense Categories</option>
+                    <option value="housing">Housing</option>
+                    <option value="food">Food</option>
+                    <option value="transport">Transport</option>
+                    <option value="services">Services</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="education">Education</option>
+                    <option value="shopping">Shopping</option>
+                </select>
+                <select id="filter-type">
+                    <option value="todas">All types</option>
+                    <option value="ingreso">Income</option>
+                    <option value="gasto">Expenses</option>
+                </select>
+            </div>
+            <div id="transactions" class="transactions"></div>
+        </div>
+
+        <div class="monthly-details">
+            <h3><i class="fas fa-history"></i> Monthly History</h3>
+            <div class="month-list" id="monthList">
+                <!-- Se llenará dinámicamente con JavaScript -->
+            </div>
+        </div>
+
+        <div class="recurring-section">
+            <h3><i class="fas fa-sync"></i> Recurring Payments</h3>
+
+            <div class="recurring-controls">
+                <button class="btn-submit" id="addRecurringBtn">
+                    <i class="fas fa-plus"></i> New Recurring Payment
+                </button>
+            </div>
+
+            <div class="recurring-list" id="recurringList">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <!-- Modal para agregar/editar pagos recurrentes -->
+            <div class="modal" id="recurringModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4><i class="fas fa-clock"></i> Add Recurring Payment</h4>
+                        <button class="close-modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="recurringForm">
+                        <div class="form-group">
+                            <label for="recurring-type">Type</label>
+                            <select id="recurring-type" required>
+                                <option value="">Select a type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recurring-description">Description</label>
+                            <input type="text" id="recurring-description" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recurring-amount">Amount</label>
+                            <input type="number" id="recurring-amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recurring-category">Category</label>
+                            <select id="recurring-category" required>
+                                <option value="">Select a category</option>
+                                <!-- Las categorías se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recurring-day">Day of month</label>
+                            <input type="number" id="recurring-day" min="1" max="31" required>
+                        </div>
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agregar justo después del remindersModal -->
+        <div class="modal" id="confirmationModal">
+            <div class="modal-content confirmation-modal">
+                <div class="modal-header">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Confirm Action</h4>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="confirmation-content">
+                    <p id="confirmationMessage"></p>
+                </div>
+                <div class="confirmation-actions">
+                    <button class="btn-submit btn-cancel" id="cancelConfirmation">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn-submit btn-confirm" id="confirmAction">
+                        <i class="fas fa-check"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="authModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="authTitle"><i class="fas fa-user"></i> Login</h4>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" data-translate="password">Contraseña</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div id="registerFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="confirmPassword" data-translate="confirmPassword">Confirmar Contraseña</label>
+                            <input type="password" id="confirmPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="userName" data-translate="name">Nombre</label>
+                            <input type="text" id="userName">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="authSubmitBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <p class="auth-switch">
+                        <span data-translate="noAccount">¿No tienes cuenta?</span>
+                        <a href="#" id="switchAuthMode" data-translate="register">Registrarse</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="assets/logo.png" alt="Flexxity.net Logo">
+            </div>
+            <div class="footer-text">
+                <p>&copy; <span id="currentYear"></span> Flexxity.net - All rights reserved</p>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="backup.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+
+</html>

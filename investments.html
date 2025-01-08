@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Inversiones</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="notification-container"></div>
+    <div class="container">
+        <header class="app-header">
+            <h1><i class="fas fa-chart-line"></i> <span data-translate="investmentTracking">Seguimiento de Inversiones</span></h1>
+            <div class="app-controls">
+                <button class="language-toggle" title="Cambiar idioma">
+                    <i class="fas fa-globe"></i>
+                    <span class="lang-text">ES</span>
+                </button>
+                <button class="theme-toggle" title="Cambiar tema">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="btn-icon" onclick="window.location.href='index.html'" title="Volver">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="investments-section">
+            <!-- Formulario para agregar inversión -->
+            <div class="investment-form-container">
+                <h3 data-translate="addInvestment">Agregar Inversión</h3>
+                <form id="investmentForm" class="investment-form">
+                    <div class="form-group">
+                        <label data-translate="investmentType">Tipo de Inversión:</label>
+                        <select id="investment-type" required>
+                            <option value="stocks" data-translate="stocks">Acciones</option>
+                            <option value="bonds" data-translate="bonds">Bonos</option>
+                            <option value="crypto" data-translate="crypto">Criptomonedas</option>
+                            <option value="realEstate" data-translate="realEstate">Bienes Raíces</option>
+                            <option value="other" data-translate="other">Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-translate="amount">Monto:</label>
+                        <input type="number" id="investment-amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-translate="expectedReturn">Rendimiento Esperado (%):</label>
+                        <input type="number" id="expected-return" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-translate="startDate">Fecha de Inicio:</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+                    <button type="submit" class="btn-submit" data-translate="addButton">Agregar</button>
+                </form>
+            </div>
+
+            <!-- Lista de inversiones -->
+            <div class="investments-list">
+                <h3 data-translate="investmentsList">Lista de Inversiones</h3>
+                <div id="investmentsTableContainer">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Resumen de inversiones -->
+            <div class="investment-summary">
+                <h3 data-translate="investmentSummary">Resumen de Inversiones</h3>
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <canvas id="investmentDistributionChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="returnProjectionChart"></canvas>
+                    </div>
+                </div>
+                <div id="investmentStatsContainer" class="statistics-container">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar preferencias guardadas
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedLang = localStorage.getItem('language') || 'es';
+        
+        // Aplicar tema y lenguaje
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.setAttribute('data-lang', savedLang);
+        
+        // Actualizar iconos y texto según el tema
+        const themeIcon = document.querySelector('.theme-toggle i');
+        themeIcon.classList.remove('fa-sun', 'fa-moon');
+        themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+        
+        // Actualizar texto del idioma
+        document.querySelector('.lang-text').textContent = savedLang.toUpperCase();
+        
+        // Funcionalidad del botón de tema
+        document.querySelector('.theme-toggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.remove('fa-sun', 'fa-moon');
+            icon.classList.add(newTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+        });
+        
+        // Funcionalidad del botón de idioma
+        document.querySelector('.language-toggle').addEventListener('click', () => {
+            const currentLang = document.documentElement.getAttribute('data-lang');
+            const newLang = currentLang === 'es' ? 'en' : 'es';
+            document.documentElement.setAttribute('data-lang', newLang);
+            localStorage.setItem('language', newLang);
+            document.querySelector('.lang-text').textContent = newLang.toUpperCase();
+            updateUILanguage(newLang);
+            // Disparar evento de cambio de idioma
+            document.dispatchEvent(new Event('languageChanged'));
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="investments.js"></script>
+</body>
+</html> 

@@ -1,0 +1,11 @@
+{
+    "expenseControl": "Control de Gastos",
+    "totalBalance": "Balance Total",
+    "totalIncome": "Ingresos",
+    "totalExpense": "Gastos",
+    "monthlySummary": "Resumen del Mes",
+    "newTransaction": "Nueva Transacción",
+    "transactionHistory": "Historial de Transacciones",
+    "monthlyHistory": "Historial por Mes",
+    "recurringPayments": "Pagos Recurrentes"
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Connection</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div id="notification-container"></div>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-main">
+                <h1><i class="fas fa-university"></i> <span data-translate="bankConnection">Bank Connection</span></h1>
+            </div>
+            <div class="app-controls">
+                <button class="language-toggle" title="Change language">
+                    <i class="fas fa-globe"></i>
+                    <span class="lang-text">EN</span>
+                </button>
+                <button class="theme-toggle" title="Change theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="btn-icon" onclick="window.location.href='index.html'" title="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="bank-integration-section">
+            <div class="bank-connection-form">
+                <h3 data-translate="connectNewBank">Connect New Bank</h3>
+                <form id="bankConnectionForm">
+                    <div class="form-group">
+                        <label data-translate="selectBank">Select Bank:</label>
+                        <select id="bankSelect" required>
+                            <optgroup label="United States">
+                                <option value="Chase">Chase</option>
+                                <option value="USBank">US Bank</option>
+                                <option value="BankOfAmerica">Bank of America</option>
+                                <option value="WellsFargo">Wells Fargo</option>
+                                <option value="Citibank">Citibank</option>
+                                <option value="CapitalOne">Capital One</option>
+                            </optgroup>
+                            <optgroup label="Mexico">
+                                <option value="BBVA">BBVA</option>
+                                <option value="Santander">Santander</option>
+                                <option value="Banamex">Banamex</option>
+                                <option value="Banorte">Banorte</option>
+                            </optgroup>
+                            <optgroup label="International">
+                                <option value="HSBC">HSBC</option>
+                                <option value="Scotiabank">Scotiabank</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-translate="credentials">Credentials:</label>
+                        <input type="text" id="username" placeholder="Username" required>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Connect</button>
+                </form>
+            </div>
+
+            <div class="connected-banks">
+                <h3 data-translate="connectedBanks">Connected Banks</h3>
+                <div id="banksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to update UI language
+        function updateUILanguage() {
+            const translations = {
+                bankConnection: 'Bank Connection',
+                connectedBanks: 'Connected Banks',
+                connectNewBank: 'Connect New Bank',
+                selectBank: 'Select Bank:',
+                credentials: 'Credentials:',
+                connect: 'Connect',
+                regions: {
+                    usa: 'United States',
+                    mexico: 'Mexico',
+                    international: 'International'
+                }
+            };
+
+            // Update translatable texts
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[key]) {
+                    element.textContent = translations[key];
+                }
+            });
+
+            // Update placeholders
+            document.getElementById('username').placeholder = 'Username';
+            document.getElementById('password').placeholder = 'Password';
+
+            // Update option group labels
+            const optgroups = document.querySelectorAll('optgroup');
+            optgroups[0].label = translations.regions.usa;
+            optgroups[1].label = translations.regions.mexico;
+            optgroups[2].label = translations.regions.international;
+
+            // Update button text
+            document.querySelector('.btn-submit').textContent = translations.connect;
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        // Apply theme
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Update icons based on theme
+        const themeIcon = document.querySelector('.theme-toggle i');
+        themeIcon.classList.remove('fa-sun', 'fa-moon');
+        themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+
+        // Apply initial translations
+        updateUILanguage();
+
+        // Theme toggle functionality
+        document.querySelector('.theme-toggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.remove('fa-sun', 'fa-moon');
+            icon.classList.add(newTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+        });
+    </script>
+    <script src="bankIntegration.js"></script>
+</body>
+
+</html>
