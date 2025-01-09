@@ -70,6 +70,38 @@
     </div>
 
     <script>
+        // Cargar usuario actual
+        window.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Inicializar transactions si no existe
+        if (window.currentUser) {
+            const storedTransactions = localStorage.getItem(`transactions_${window.currentUser.id}`);
+            window.transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
+        } else {
+            window.transactions = [];
+        }
+
+        // Agregar la función updateUI
+        window.updateUI = function() {
+            if (window.currentUser) {
+                localStorage.setItem(
+                    `transactions_${window.currentUser.id}`,
+                    JSON.stringify(window.transactions)
+                );
+            }
+        };
+
+        // Verificar si hay usuario y deshabilitar el formulario si no hay
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('bankConnectionForm');
+            const inputs = form.querySelectorAll('input, select, button');
+            
+            if (!window.currentUser) {
+                inputs.forEach(input => input.disabled = true);
+                window.showNotification('Error', 'Please login to connect banks', 'error');
+            }
+        });
+
         // Function to update UI language
         function updateUILanguage() {
             const translations = {
@@ -133,8 +165,34 @@
             icon.classList.remove('fa-sun', 'fa-moon');
             icon.classList.add(newTheme === 'dark' ? 'fa-sun' : 'fa-moon');
         });
+
+        // Agregar la función showNotification
+        window.showNotification = function(title, message, type) {
+            const container = document.getElementById('notification-container');
+            if (!container) {
+                console.warn('Notification container not found');
+                return;
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <h4>${title}</h4>
+                    <p>${message}</p>
+                </div>
+            `;
+
+            container.appendChild(notification);
+            setTimeout(() => {
+                if (notification && notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        };
     </script>
-    <script src="bankIntegration.js"></script>
+    <script type="module" src="bankIntegration.js"></script>
 </body>
 
 </html>
