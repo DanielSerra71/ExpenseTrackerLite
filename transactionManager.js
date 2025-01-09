@@ -15,10 +15,33 @@ export const transactionManager = {
         this.elements.typeSelect.addEventListener('change', this.handleTypeChange.bind(this));
         this.elements.presetSelect.addEventListener('change', this.handlePresetChange.bind(this));
         this.elements.savePresetBtn.addEventListener('click', this.handleSavePreset.bind(this));
+
+        // Verificar estado de autenticación
+        if (!window.currentUser) {
+            // Deshabilitar todos los campos del formulario
+            this.elements.typeSelect.disabled = true;
+            this.elements.presetSelect.disabled = true;
+            this.elements.descriptionInput.disabled = true;
+            this.elements.amountInput.disabled = true;
+            this.elements.categorySelect.disabled = true;
+            this.elements.dateInput.disabled = true;
+            this.elements.savePresetBtn.disabled = true;
+        }
     },
 
     handleSubmit(e) {
         e.preventDefault();
+        
+        // Verificar si hay un usuario autenticado
+        if (!window.currentUser) {
+            window.showNotification(
+                'Error',
+                'You must be logged in to add transactions',
+                'error'
+            );
+            return;
+        }
+
         const currentLang = document.documentElement.getAttribute('data-lang') || 'es';
 
         const transaction = {
