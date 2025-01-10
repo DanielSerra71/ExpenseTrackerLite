@@ -45,18 +45,18 @@ export const monthlyHistoryManager = {
         // Renderizar resumen anual
         const annualSummaryHTML = `
             <div class="annual-summary">
-                <h4>${translations[currentLang].annualSummary}</h4>
+                <h4>Annual Summary</h4>
                 <div class="annual-stats">
                     <div class="stat-item income">
-                        <span class="stat-label">${translations[currentLang].totalIncome}</span>
+                        <span class="stat-label">Income</span>
                         <span class="stat-value">+$${annualSummary.income.toFixed(2)}</span>
                     </div>
                     <div class="stat-item expense">
-                        <span class="stat-label">${translations[currentLang].totalExpense}</span>
+                        <span class="stat-label">Expenses</span>
                         <span class="stat-value">-$${annualSummary.expense.toFixed(2)}</span>
                     </div>
                     <div class="stat-item balance ${isPositive ? 'positive' : 'negative'}">
-                        <span class="stat-label">${translations[currentLang].totalBalance}</span>
+                        <span class="stat-label">Total Balance</span>
                         <span class="stat-value">${isPositive ? '+' : '-'}$${Math.abs(totalBalance).toFixed(2)}</span>
                     </div>
                 </div>

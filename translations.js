@@ -13,7 +13,8 @@ const translations = {
         suggestedAlternatives: 'Alternativas sugeridas',
         highPriority: 'Alta',
         mediumPriority: 'Media',
-        lowPriority: 'Baja'
+        lowPriority: 'Baja',
+        totalBalance: 'Balance Total'
     },
     en: {
         // ... otras traducciones ...
@@ -29,6 +30,7 @@ const translations = {
         suggestedAlternatives: 'Suggested Alternatives',
         highPriority: 'High',
         mediumPriority: 'Medium',
-        lowPriority: 'Low'
+        lowPriority: 'Low',
+        totalBalance: 'Total Balance'
     }
 }; 
