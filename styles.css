@@ -1123,7 +1123,7 @@ canvas {
 /* Estilo específico para el gráfico de donut */
 #expensesByCategoryChart {
     max-height: 400px;
-    width: auto !important;
+    
 }
 
 /* Estilos para la sección de inversiones */
@@ -1564,6 +1564,21 @@ canvas {
 
     #investmentDistributionChart {
         max-width: 100% !important;
+    }
+}
+@media (max-width: 576px) {
+    .bank-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .accounts-list {
+        width: 100%;
+    }
+    .bank-actions{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
     }
 }
 
