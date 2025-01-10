@@ -238,6 +238,85 @@ class FinancialReports {
         };
     }
 
+    async getExpensesByCategory(startDate, endDate) {
+        const expenses = this.transactions
+            .filter(t => t.type === 'expense' && 
+                        t.date >= startDate.toISOString().split('T')[0] && 
+                        t.date <= endDate.toISOString().split('T')[0]);
+
+        // Agrupar por categoría
+        const categoryTotals = expenses.reduce((acc, transaction) => {
+            if (!acc[transaction.category]) {
+                acc[transaction.category] = 0;
+            }
+            acc[transaction.category] += transaction.amount;
+            return acc;
+        }, {});
+
+        // Convertir a array de objetos
+        return Object.entries(categoryTotals).map(([category, amount]) => ({
+            category,
+            amount
+        }));
+    }
+
+    async getMonthlyComparison() {
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const currentDate = new Date();
+        const lastSixMonths = Array.from({length: 6}, (_, i) => {
+            const d = new Date(currentDate);
+            d.setMonth(d.getMonth() - i);
+            return d;
+        }).reverse();
+
+        const monthlyData = lastSixMonths.map(date => {
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            const startDate = new Date(year, month, 1);
+            const endDate = new Date(year, month + 1, 0);
+            const startStr = startDate.toISOString().split('T')[0];
+            const endStr = endDate.toISOString().split('T')[0];
+
+            const monthTransactions = this.transactions.filter(t => 
+                t.date >= startStr && t.date <= endStr
+            );
+
+            return {
+                label: months[month],
+                income: monthTransactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0),
+                expense: monthTransactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0)
+            };
+        });
+
+        return {
+            labels: monthlyData.map(d => d.label),
+            income: monthlyData.map(d => d.income),
+            expenses: monthlyData.map(d => d.expense)
+        };
+    }
+
+    async getSavingsData() {
+        const monthlyData = await this.getMonthlyComparison();
+        const savings = monthlyData.income.map((income, i) => income - monthlyData.expenses[i]);
+        
+        // Proyección para los próximos 6 meses
+        const avgSaving = savings.reduce((a, b) => a + b, 0) / savings.length;
+        const projected = Array.from({length: 6}, (_, i) => avgSaving * (i + 1));
+
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const currentMonth = new Date().getMonth();
+        const futureMonths = Array.from({length: 6}, (_, i) => months[(currentMonth + i + 1) % 12]);
+
+        return {
+            labels: futureMonths,
+            projected: projected
+        };
+    }
+
     calculateStatistics(data) {
         return {
             totalExpenses: this.calculateTotal(data.expenses),
@@ -412,84 +491,6 @@ class FinancialReports {
         `;
     }
 
-    async getExpensesByCategory(startDate, endDate) {
-        const expenses = this.transactions
-            .filter(t => t.type === 'expense' && 
-                        new Date(t.date) >= startDate && 
-                        new Date(t.date) <= endDate);
-
-        // Agrupar por categoría
-        const categoryTotals = expenses.reduce((acc, transaction) => {
-            if (!acc[transaction.category]) {
-                acc[transaction.category] = 0;
-            }
-            acc[transaction.category] += transaction.amount;
-            return acc;
-        }, {});
-
-        // Convertir a array de objetos
-        return Object.entries(categoryTotals).map(([category, amount]) => ({
-            category,
-            amount
-        }));
-    }
-
-    async getMonthlyComparison() {
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const currentDate = new Date();
-        const lastSixMonths = Array.from({length: 6}, (_, i) => {
-            const d = new Date(currentDate);
-            d.setMonth(d.getMonth() - i);
-            return d;
-        }).reverse();
-
-        const monthlyData = lastSixMonths.map(date => {
-            const month = date.getMonth();
-            const year = date.getFullYear();
-            const startDate = new Date(year, month, 1);
-            const endDate = new Date(year, month + 1, 0);
-
-            const monthTransactions = this.transactions.filter(t => {
-                const tDate = new Date(t.date);
-                return tDate >= startDate && tDate <= endDate;
-            });
-
-            return {
-                label: months[month],
-                income: monthTransactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + t.amount, 0),
-                expense: monthTransactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0)
-            };
-        });
-
-        return {
-            labels: monthlyData.map(d => d.label),
-            income: monthlyData.map(d => d.income),
-            expenses: monthlyData.map(d => d.expense)
-        };
-    }
-
-    async getSavingsData() {
-        const monthlyData = await this.getMonthlyComparison();
-        const savings = monthlyData.income.map((income, i) => income - monthlyData.expenses[i]);
-        
-        // Proyección para los próximos 6 meses
-        const avgSaving = savings.reduce((a, b) => a + b, 0) / savings.length;
-        const projected = Array.from({length: 6}, (_, i) => avgSaving * (i + 1));
-
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const currentMonth = new Date().getMonth();
-        const futureMonths = Array.from({length: 6}, (_, i) => months[(currentMonth + i + 1) % 12]);
-
-        return {
-            labels: futureMonths,
-            projected: projected
-        };
-    }
-
     updateExpensesByCategoryChart(expenses) {
         const labels = expenses.map(item => item.category);
         const data = expenses.map(item => item.amount);
@@ -559,6 +560,38 @@ class FinancialReports {
             this.charts.savingsProjection.data.datasets[0].label = this.translate('savings');
             this.charts.savingsProjection.update();
         }
+    }
+
+    calculateMonthlyStats(transactions, date) {
+        // Usar el mismo formato YYYY-MM-DD para comparación
+        const start = new Date(date.getFullYear(), date.getMonth(), 1);
+        const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        
+        const startStr = start.toISOString().split('T')[0];
+        const endStr = end.toISOString().split('T')[0];
+
+        // Filtrar transacciones usando el mismo método que monthlyManager
+        const monthTransactions = transactions.filter(t => 
+            t.date >= startStr && t.date <= endStr
+        );
+
+        const stats = {
+            income: 0,
+            expense: 0,
+            balance: 0,
+            transactions: monthTransactions
+        };
+
+        monthTransactions.forEach(t => {
+            if (t.type === 'income') {
+                stats.income += t.amount;
+            } else {
+                stats.expense += t.amount;
+            }
+        });
+
+        stats.balance = stats.income - stats.expense;
+        return stats;
     }
 }
 

@@ -46,13 +46,15 @@ export const monthlyManager = {
     },
 
     getMonthRange(date) {
+        // Crear fechas usando solo año y mes para evitar problemas con días
         const start = new Date(date.getFullYear(), date.getMonth(), 1);
-        start.setHours(0, 0, 0, 0);
-
         const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        end.setHours(23, 59, 59, 999);
 
-        return { start, end };
+        // Convertir las fechas a formato YYYY-MM-DD para comparación consistente
+        return {
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0]
+        };
     },
 
     formatMonth(date) {
@@ -65,8 +67,8 @@ export const monthlyManager = {
     updateStats() {
         const { start, end } = this.getMonthRange(this.currentDate);
         const monthTransactions = window.transactions.filter(t => {
-            const transactionDate = new Date(t.date);
-            return transactionDate >= start && transactionDate <= end;
+            // Comparar solo las fechas en formato YYYY-MM-DD
+            return t.date >= start && t.date <= end;
         });
 
         const income = monthTransactions
@@ -86,5 +88,37 @@ export const monthlyManager = {
 
         const monthValue = this.currentDate.toISOString().slice(0, 7);
         document.getElementById('specificMonth').value = monthValue;
+    },
+
+    calculateMonthlyStats(transactions, date = new Date()) {
+        // Asegurar que la fecha esté al inicio del mes
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        // Asegurar que la fecha final esté al final del mes
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+
+        const monthlyTransactions = transactions.filter(t => {
+            const transactionDate = new Date(t.date);
+            // Comparar usando getTime() para precisión exacta
+            return transactionDate.getTime() >= startOfMonth.getTime() && 
+                   transactionDate.getTime() <= endOfMonth.getTime();
+        });
+
+        const stats = {
+            income: 0,
+            expense: 0,
+            balance: 0,
+            transactions: monthlyTransactions
+        };
+
+        monthlyTransactions.forEach(t => {
+            if (t.type === 'income') {
+                stats.income += t.amount;
+            } else {
+                stats.expense += t.amount;
+            }
+        });
+
+        stats.balance = stats.income - stats.expense;
+        return stats;
     }
 }; 
