@@ -180,11 +180,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const userNameDisplay = document.querySelector('.user-name');
         if (user) {
             userNameDisplay.textContent = user.name;
-            document.dispatchEvent(new CustomEvent('authStateChanged', { 
-                detail: { user } 
-            }));
+            // Solo dispara el evento si el usuario ha cambiado
+            if (!window.currentUser || window.currentUser.id !== user.id) {
+                window.currentUser = user; // Actualiza el usuario actual
+                document.dispatchEvent(new CustomEvent('authStateChanged', { 
+                    detail: { user } 
+                }));
+            }
         } else {
             userNameDisplay.textContent = 'Invitado';
+            if (window.currentUser) {
+                window.currentUser = null; // Actualiza el usuario actual
+                document.dispatchEvent(new CustomEvent('authStateChanged', { 
+                    detail: { user: null } 
+                }));
+            }
         }
     }
 

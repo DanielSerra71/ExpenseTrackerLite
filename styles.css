@@ -2202,3 +2202,14 @@ canvas {
 .btn-icon.imported i {
     color: white;
 }
+
+
+
+
+/* Asegúrate de que todos los elementos usen las variables de color */
+.container, .app-header, .btn-primary, .btn-icon {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: var(--box-shadow);
+}
