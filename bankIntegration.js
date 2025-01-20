@@ -19,7 +19,7 @@ class BankIntegration {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             console.log('Form submitted');
-            
+
             if (!window.currentUser) {
                 window.showNotification('Error', 'Please login first', 'error');
                 return;
@@ -47,12 +47,21 @@ class BankIntegration {
     async connectBank(bankName, credentials) {
         try {
             const connection = await bankApiService.connectToBank(bankName, credentials);
-            
+
             if (connection.success) {
+                // Obtener las cuentas desde Plaid
+                const accounts = await bankApiService.getAccounts(connection.accessToken);
+
                 this.connectedBanks.push({
-                    id: connection.bankId,
+                    id: connection.itemId, // Usar itemId de Plaid como bankId
                     name: bankName,
-                    accounts: connection.accounts,
+                    accounts: accounts.map(account => ({
+                        id: account.account_id,
+                        name: account.name,
+                        type: account.type,
+                        balance: account.balances.current,
+                        subtype: account.subtype
+                    })),
                     lastSync: new Date().toISOString()
                 });
 
@@ -75,7 +84,7 @@ class BankIntegration {
     saveConnectedBanks() {
         if (window.currentUser) {
             localStorage.setItem(
-                `banks_${window.currentUser.id}`, 
+                `banks_${window.currentUser.id}`,
                 JSON.stringify(this.connectedBanks)
             );
         }
@@ -88,7 +97,7 @@ class BankIntegration {
         this.connectedBanks.forEach(bank => {
             const bankElement = document.createElement('div');
             bankElement.className = 'bank-card';
-            
+
             // Crear lista de cuentas con botón para ver transacciones
             const accountsList = bank.accounts.map(account => `
                 <div class="account-item">
@@ -160,11 +169,11 @@ class BankIntegration {
 
             // Simular sincronización
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             bank.lastSync = new Date().toISOString();
             this.saveConnectedBanks();
             this.updateBanksList();
-            
+
             window.showNotification('Success', 'Bank synced successfully', 'success');
         } catch (error) {
             window.showNotification('Error', error.message, 'error');
@@ -265,6 +274,27 @@ class BankIntegration {
         } catch (error) {
             console.error('Error importing transaction:', error);
             window.showNotification('Error', 'Failed to import transaction', 'error');
+        }
+    }
+
+    async initializePlaid() {
+        const plaidButton = document.getElementById('plaidButton');
+        if (!plaidButton) return;
+
+        try {
+            // Actualizar la URL para usar el puerto correcto
+            const response = await fetch('http://localhost:5500/api/create_link_token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const { link_token } = await response.json();
+            // ... rest of the code ...
+        } catch (error) {
+            console.error('Error initializing Plaid:', error);
+            this.showNotification('Error initializing bank connection', 'error');
         }
     }
 }

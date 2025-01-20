@@ -86,10 +86,29 @@ body {
 }
 
 .summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    display: flex;
+    justify-content: space-around;
+    box-shadow: var(--box-shadow);
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.summary-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 5px;
+    color: var(--text-color);
 }
 
 .summary-card {
@@ -214,10 +233,39 @@ select {
 }
 
 .filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-color);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.search-box {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    width: 200px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .transactions {
@@ -227,20 +275,12 @@ select {
 .transaction-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: var(--bg-color);
-    border-radius: 5px;
-    border-left: 5px solid #ddd;
-}
-
-.transaction-item.plus {
-    border-left-color: var(--primary-color);
-}
-
-.transaction-item.minus {
-    border-left-color: var(--danger-color);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: var(--border-radius);
+    background-color: var(--card-bg);
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
 }
 
 .transaction-info {
@@ -248,10 +288,37 @@ select {
     flex-direction: column;
 }
 
-.transaction-category {
-    font-size: 0.8rem;
+.transaction-date {
     color: var(--text-color);
-    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.transaction-name {
+    font-weight: bold;
+    margin: 5px 0;
+    color: var(--text-color);
+}
+
+.transaction-category {
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+.amount-positive {
+    color: var(--primary-color);
+}
+
+.amount-negative {
+    color: var(--danger-color);
+}
+
+.transaction-amount {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.pending {
+    background-color: var(--light-color);
 }
 
 .delete-btn {
@@ -1123,7 +1190,7 @@ canvas {
 /* Estilo específico para el gráfico de donut */
 #expensesByCategoryChart {
     max-height: 400px;
-    
+
 }
 
 /* Estilos para la sección de inversiones */
@@ -1566,15 +1633,18 @@ canvas {
         max-width: 100% !important;
     }
 }
+
 @media (max-width: 576px) {
     .bank-card {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .accounts-list {
         width: 100%;
     }
-    .bank-actions{
+
+    .bank-actions {
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -2203,13 +2273,11 @@ canvas {
     color: white;
 }
 
+/* Estilos de estado */
+.error {
+    color: var(--danger-color);
+}
 
-
-
-/* Asegúrate de que todos los elementos usen las variables de color */
-.container, .app-header, .btn-primary, .btn-icon {
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border-color: var(--border-color);
-    box-shadow: var(--box-shadow);
+.success {
+    color: var(--primary-color);
 }

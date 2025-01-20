@@ -116,16 +116,16 @@ class BankApiService {
     }
 
     validateCredentials(valid, provided) {
-        return valid.username === provided.username && 
-               valid.password === provided.password;
+        return valid.username === provided.username &&
+            valid.password === provided.password;
     }
 
     async getTransactions(bankId, accountId, fromDate) {
         // Simular delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Retornar transacciones simuladas
-        const bank = Object.values(this.mockBankData).find(b => 
+        const bank = Object.values(this.mockBankData).find(b =>
             b.accounts.some(a => a.id === accountId)
         );
 
@@ -135,6 +135,28 @@ class BankApiService {
 
         const account = bank.accounts.find(a => a.id === accountId);
         return account.transactions;
+    }
+
+    async getAccounts(accessToken) {
+        try {
+            const response = await fetch('http://localhost:5500/api/accounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ access_token: accessToken })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch accounts');
+            }
+
+            const data = await response.json();
+            return data.accounts;
+        } catch (error) {
+            console.error('Error getting accounts:', error);
+            throw error;
+        }
     }
 }
 
