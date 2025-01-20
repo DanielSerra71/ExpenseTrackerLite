@@ -132,6 +132,7 @@ body {
     margin-bottom: 10px;
 }
 
+
 .income i {
     color: var(--primary-color);
 }
@@ -342,6 +343,10 @@ select {
 
     .summary {
         grid-template-columns: 1fr;
+    }
+
+    .summary {
+        flex-direction: column;
     }
 }
 
@@ -2032,6 +2037,7 @@ canvas {
 
 .summary-item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid var(--border-color);
