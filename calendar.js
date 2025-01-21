@@ -21,18 +21,16 @@ export class Calendar {
         console.log('Usuario actual:', currentUser); // Debug usuario
 
         if (currentUser) {
+            // Cargar transacciones normales
             const storedTransactions = localStorage.getItem(`transactions_${currentUser.id}`);
             console.log('Transacciones almacenadas (raw):', storedTransactions); // Debug transacciones raw
 
             if (storedTransactions) {
-                this.transactions = JSON.parse(storedTransactions);
-                console.log('Transacciones parseadas:', this.transactions); // Debug transacciones parseadas
-
-                // Asegurarse de que las fechas estén en el formato correcto
-                this.transactions = this.transactions.map(t => ({
+                this.transactions = JSON.parse(storedTransactions).map(t => ({
                     ...t,
-                    date: new Date(t.date).toISOString().split('T')[0]
+                    date: new Date(t.date).toISOString().split('T')[0] // Normalizar formato de fecha
                 }));
+                console.log('Transacciones parseadas:', this.transactions); // Debug transacciones parseadas
 
                 // Debug: Mostrar las transacciones ordenadas por fecha
                 console.log('Transacciones ordenadas por fecha:',
@@ -182,17 +180,27 @@ export class Calendar {
     }
 
     getTransactionsForDate(date) {
+        // Formatear la fecha para comparar con las transacciones
         const dateString = date.toISOString().split('T')[0];
+        console.log('Buscando transacciones para fecha:', dateString);
+
+        // Obtener transacciones normales
         const dayTransactions = this.transactions.filter(t => {
+            // Asegurarse que la fecha de la transacción esté en el formato correcto
             const transactionDate = new Date(t.date).toISOString().split('T')[0];
+            console.log('Comparando:', transactionDate, 'con', dateString);
             return transactionDate === dateString;
         });
 
-        if (dayTransactions.length > 0) {
-            console.log(`Transacciones para ${dateString}:`, dayTransactions);
-        }
+        // Obtener pagos recurrentes para esta fecha
+        const recurringForDay = this.recurringPayments.filter(payment => {
+            return payment.dayOfMonth === date.getDate();
+        });
 
-        return dayTransactions;
+        console.log('Transacciones encontradas:', dayTransactions);
+        console.log('Pagos recurrentes encontrados:', recurringForDay);
+
+        return [...dayTransactions, ...recurringForDay];
     }
 
     getRecurringPaymentsForDate(date) {
