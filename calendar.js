@@ -221,4 +221,52 @@ export class Calendar {
         this.recurringPayments = recurringPayments;
         this.renderCalendar();
     }
+
+    renderDay(date) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('calendar-day');
+
+        const dayNumber = document.createElement('span');
+        dayNumber.textContent = date.getDate();
+        dayElement.appendChild(dayNumber);
+
+        const transactions = this.getTransactionsForDate(date);
+
+        const indicatorsContainer = document.createElement('div');
+        indicatorsContainer.classList.add('transaction-indicators');
+
+        transactions.forEach(transaction => {
+            const indicator = document.createElement('div');
+
+            // Crear el tooltip
+            const tooltip = document.createElement('div');
+            tooltip.classList.add('tooltip');
+
+            const tooltipTitle = document.createElement('div');
+            tooltipTitle.classList.add('tooltip-title');
+            tooltipTitle.textContent = transaction.description;
+
+            const tooltipContent = document.createElement('div');
+            tooltipContent.classList.add('tooltip-content');
+            tooltipContent.textContent = `$${transaction.amount}`;
+
+            tooltip.appendChild(tooltipTitle);
+            tooltip.appendChild(tooltipContent);
+
+            if ('dayOfMonth' in transaction) {
+                indicator.classList.add('transaction-indicator', 'recurring');
+            } else {
+                indicator.classList.add(
+                    'transaction-indicator',
+                    transaction.type === 'income' ? 'income' : 'expense'
+                );
+            }
+
+            indicator.appendChild(tooltip);
+            indicatorsContainer.appendChild(indicator);
+        });
+
+        dayElement.appendChild(indicatorsContainer);
+        return dayElement;
+    }
 } 

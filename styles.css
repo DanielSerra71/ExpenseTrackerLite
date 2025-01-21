@@ -1674,14 +1674,24 @@ canvas {
 }
 
 /* Estilos para los tooltips personalizados */
-.chartjs-tooltip {
-    background: var(--card-bg) !important;
-    color: var(--text-color) !important;
-    border-radius: var(--border-radius) !important;
-    padding: 8px 12px !important;
-    box-shadow: var(--box-shadow) !important;
-    font-family: 'Segoe UI', sans-serif !important;
-    font-size: 13px !important;
+.transaction-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: var(--card-shadow);
+    font-size: 0.85rem;
+    max-width: 180px;
+    /* Posicionamiento en el centro del calendario */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.transaction-indicator:hover .transaction-tooltip {
+    display: block;
 }
 
 /* Estilos para el Presupuesto Inteligente */
@@ -2313,6 +2323,7 @@ canvas {
 }
 
 .calendar-container {
+    position: relative;
     width: 100%;
     overflow-x: auto;
     background: var(--card-bg);
@@ -2355,17 +2366,15 @@ canvas {
     position: relative;
     z-index: 2;
     max-width: 100%;
-    /* Asegura que no desborde el ancho */
 }
 
 .transaction-indicator {
+    position: relative;
+    /* Importante para el posicionamiento del tooltip */
     width: 6px;
-    /* Reducido de 10px a 6px */
     height: 6px;
-    /* Reducido de 10px a 6px */
     border-radius: 50%;
     margin: 1px;
-    /* Reducido el margen */
     cursor: pointer;
     transition: transform 0.2s;
 }
@@ -2382,8 +2391,8 @@ canvas {
     background-color: #FFC107;
 }
 
-.transaction-indicator:hover {
-    transform: scale(1.2);
+.transaction-indicator:hover .transaction-tooltip {
+    display: block;
 }
 
 .calendar-day span {
@@ -2435,20 +2444,20 @@ canvas {
 .transaction-tooltip {
     display: none;
     position: absolute;
-    bottom: 120%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: max-content;
-    max-width: 180px;
+    z-index: 1000;
     background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     box-shadow: var(--card-shadow);
-    z-index: 1000;
-    border: 1px solid var(--border-color);
     font-size: 0.85rem;
+    max-width: 180px;
+    /* Posicionamiento en el centro del calendario */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.transaction-dot:hover .transaction-tooltip {
+.transaction-indicator:hover .transaction-tooltip {
     display: block;
 }
 
@@ -2503,103 +2512,7 @@ canvas {
     position: relative;
 }
 
-/* Media queries para diferentes tamaños de pantalla */
-@media (max-width: 768px) {
-    .calendar-controls h2 {
-        font-size: 1.2rem;
-    }
 
-    .calendar-header div {
-        font-size: 0.8rem;
-        padding: 0.25rem;
-    }
-
-    .calendar-day {
-        min-height: 60px;
-        padding: 0.25rem;
-    }
-
-    .day-number {
-        font-size: 0.8rem;
-    }
-
-    .transaction-dot {
-        width: 8px;
-        height: 8px;
-    }
-
-    .transaction-tooltip {
-        font-size: 0.75rem;
-        max-width: 150px;
-        left: 0;
-        transform: translateX(0);
-    }
-
-    .tooltip-header {
-        padding: 4px 6px;
-    }
-
-    .tooltip-content {
-        padding: 6px;
-    }
-
-    /* Ajustar posición del tooltip en los bordes */
-    .calendar-day:nth-child(7n) .transaction-tooltip,
-    .calendar-day:nth-child(7n-1) .transaction-tooltip {
-        left: auto;
-        right: 0;
-    }
-
-    .calendar-day:nth-child(-n+7) .transaction-tooltip {
-        bottom: auto;
-        top: 120%;
-    }
-}
-
-@media (max-width: 480px) {
-    .calendar-controls {
-        padding: 0.5rem;
-    }
-
-    .calendar-controls h2 {
-        font-size: 1rem;
-    }
-
-    .calendar-container {
-        padding: 0.25rem;
-    }
-
-    .calendar-day {
-        min-height: 50px;
-    }
-
-    .transaction-tooltip {
-        max-width: 140px;
-    }
-
-    .tooltip-row {
-        font-size: 0.7rem;
-    }
-
-    .calendar-legend {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-}
-
-/* Ajustes para evitar que el tooltip se salga de la pantalla */
-@media (hover: hover) {
-    .transaction-dot:hover .transaction-tooltip {
-        display: block;
-    }
-}
-
-@media (hover: none) {
-    .transaction-dot:active .transaction-tooltip {
-        display: block;
-    }
-}
 
 /* Asegurar que el tooltip sea visible en dispositivos táctiles */
 .transaction-dot:active .transaction-tooltip {
@@ -2628,28 +2541,24 @@ canvas {
     background: white;
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 6px;
-    /* Reducido de 8px a 6px */
+    padding: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     font-size: 10px;
-    /* Reducido de 12px a 10px */
-    max-width: 180px;
-    /* Reducido de 200px a 180px */
+    max-width: 120px;
     word-wrap: break-word;
     line-height: 1.1;
-    /* Reducido de 1.2 a 1.1 */
+    /* Posicionamiento en el centro del calendario */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .tooltip-title {
-    font-weight: bold;
-    font-size: 11px;
-    /* Reducido de 13px a 11px */
-    margin-bottom: 3px;
-    /* Reducido de 4px a 3px */
+    font-size: 10px;
+    margin-bottom: 2px;
 }
 
 .tooltip-content {
-    font-size: 9px;
-    /* Reducido de 11px a 9px */
+    font-size: 8px;
 }
