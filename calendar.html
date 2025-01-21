@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar View</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-main">
+                <h1><i class="fas fa-calendar-alt"></i> Calendar View</h1>
+            </div>
+            <div class="app-controls">
+                <button class="theme-toggle" title="Change theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="btn-icon" onclick="window.location.href='index.html'" title="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Calendar Controls -->
+        <div class="calendar-controls">
+            <button class="btn-icon" id="prevMonth">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <h2 id="currentMonth">January 2024</h2>
+            <button class="btn-icon" id="nextMonth">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Will be filled dynamically -->
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <span class="dot income"></span>
+                <span>Income</span>
+            </div>
+            <div class="legend-item">
+                <span class="dot expense"></span>
+                <span>Expense</span>
+            </div>
+            <div class="legend-item">
+                <span class="dot recurring"></span>
+                <span>Recurring Payment</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { Calendar } from './calendar.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar el tema
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                const icon = document.querySelector('.theme-toggle i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                }
+            }
+
+            // Theme toggle
+            document.querySelector('.theme-toggle').addEventListener('click', () => {
+                const body = document.body;
+                const icon = document.querySelector('.theme-toggle i');
+                const currentTheme = body.getAttribute('data-theme');
+
+                if (currentTheme === 'dark') {
+                    body.removeAttribute('data-theme');
+                    icon.className = 'fas fa-sun';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    icon.className = 'fas fa-moon';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
+            // Inicializar calendario
+            const calendar = new Calendar();
+            calendar.init();
+        });
+    </script>
+</body>
+
+</html>
