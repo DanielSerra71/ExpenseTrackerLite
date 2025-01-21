@@ -78,10 +78,37 @@
         import SmartBudgetUI from './smartBudgetUI.js';
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar el tema
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                const icon = document.querySelector('.theme-toggle i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                }
+            }
+
+            // Agregar event listener para el toggle del tema
+            document.querySelector('.theme-toggle').addEventListener('click', () => {
+                const body = document.body;
+                const icon = document.querySelector('.theme-toggle i');
+                const currentTheme = body.getAttribute('data-theme');
+
+                if (currentTheme === 'dark') {
+                    body.removeAttribute('data-theme');
+                    icon.className = 'fas fa-sun';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    icon.className = 'fas fa-moon';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
             // Load transactions from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             let transactions = [];
-            
+
             if (currentUser) {
                 const storedTransactions = localStorage.getItem(`transactions_${currentUser.id}`);
                 if (storedTransactions) {
