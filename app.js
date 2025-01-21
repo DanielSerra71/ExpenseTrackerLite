@@ -266,6 +266,62 @@ document.addEventListener('DOMContentLoaded', () => {
     historyManager.init();
     recurringPaymentManager.init();
 
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Cambiar el ícono
+            const icon = themeToggle.querySelector('i');
+            icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Cargar tema guardado
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Language toggle functionality
+    const languageToggle = document.querySelector('.language-toggle');
+    if (languageToggle) {
+        languageToggle.addEventListener('click', () => {
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'es';
+            const newLang = currentLang === 'es' ? 'en' : 'es';
+
+            document.documentElement.setAttribute('data-lang', newLang);
+            localStorage.setItem('language', newLang);
+
+            const langText = languageToggle.querySelector('.lang-text');
+            if (langText) {
+                langText.textContent = newLang.toUpperCase();
+            }
+
+            // Actualizar todos los textos traducibles
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[newLang][key]) {
+                    element.textContent = translations[newLang][key];
+                }
+            });
+
+            updateUI();
+        });
+
+        // Cargar idioma guardado
+        const savedLang = localStorage.getItem('language') || 'es';
+        document.documentElement.setAttribute('data-lang', savedLang);
+        const langText = languageToggle.querySelector('.lang-text');
+        if (langText) {
+            langText.textContent = savedLang.toUpperCase();
+        }
+    }
+
     // Verificar si hay usuario guardado y cargar sus datos
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -291,6 +347,12 @@ document.addEventListener('DOMContentLoaded', () => {
             window.transactions = [];
         }
         window.updateUI();
+    });
+
+    // Agregar al final del DOMContentLoaded
+    window.addEventListener('transactionAdded', (event) => {
+        console.log('New transaction added:', event.detail.transaction);
+        updateUI();
     });
 });
 
@@ -323,61 +385,6 @@ window.showNotification = function (title, message, type) {
 
 // Hacer disponible el recurringPaymentManager globalmente
 window.recurringPaymentManager = recurringPaymentManager;
-
-// Theme toggle functionality
-const themeToggle = document.querySelector('.theme-toggle');
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-
-    // Cambiar el ícono
-    const icon = themeToggle.querySelector('i');
-    icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-});
-
-// Cargar tema guardado
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-
-// Language toggle functionality
-const languageToggle = document.querySelector('.language-toggle');
-languageToggle.addEventListener('click', () => {
-    const currentLang = document.documentElement.getAttribute('data-lang') || 'es';
-    const newLang = currentLang === 'es' ? 'en' : 'es';
-
-    // Cambiar el atributo de idioma
-    document.documentElement.setAttribute('data-lang', newLang);
-    localStorage.setItem('language', newLang);
-
-    // Actualizar el texto del botón
-    const langText = languageToggle.querySelector('.lang-text');
-    langText.textContent = newLang.toUpperCase();
-
-    // Actualizar todos los textos traducibles
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
-        if (translations[newLang][key]) {
-            element.textContent = translations[newLang][key];
-        }
-    });
-
-    // Actualizar la UI
-    updateUI();
-});
-
-// Cargar idioma guardado al iniciar
-document.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('language') || 'es';
-    document.documentElement.setAttribute('data-lang', savedLang);
-    const langText = document.querySelector('.language-toggle .lang-text');
-    if (langText) {
-        langText.textContent = savedLang.toUpperCase();
-    }
-});
 
 // Función para formatear la fecha en inglés
 function formatMonth(date) {

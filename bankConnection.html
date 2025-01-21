@@ -89,8 +89,8 @@
     <script>
         const userId = '12345'; // Asegúrate de que este valor sea correcto y válido
 
-        // Al cargar la página, aplicar el tema guardado
         document.addEventListener('DOMContentLoaded', () => {
+            // Aplicar el tema guardado
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 document.body.setAttribute('data-theme', savedTheme);
@@ -101,22 +101,31 @@
                     icon.classList.replace('fa-moon', 'fa-sun');
                 }
             }
-        });
 
-        // Toggle theme script
-        document.querySelector('.theme-toggle').onclick = function () {
-            const body = document.body;
-            const icon = this.querySelector('i');
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                icon.classList.replace('fa-moon', 'fa-sun');
-                localStorage.setItem('theme', 'light'); // Guardar estado del tema
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                icon.classList.replace('fa-sun', 'fa-moon');
-                localStorage.setItem('theme', 'dark'); // Guardar estado del tema
-            }
-        };
+            // Inicializar los event listeners para los filtros
+            document.getElementById('searchBox')?.addEventListener('input', applyFilters);
+            document.getElementById('categoryFilter')?.addEventListener('change', applyFilters);
+            document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
+            document.getElementById('sortBy')?.addEventListener('change', applyFilters);
+
+            // Inicializar Plaid
+            initializePlaidLink();
+
+            // Theme toggle
+            document.querySelector('.theme-toggle').onclick = function () {
+                const body = document.body;
+                const icon = this.querySelector('i');
+                if (body.getAttribute('data-theme') === 'dark') {
+                    body.removeAttribute('data-theme');
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    icon.classList.replace('fa-sun', 'fa-moon');
+                    localStorage.setItem('theme', 'dark');
+                }
+            };
+        });
 
         let allTransactions = []; // Variable global para almacenar todas las transacciones
 
@@ -209,10 +218,20 @@
         }
 
         function applyFilters() {
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-            const sortBy = document.getElementById('sortBy').value;
+            const searchBox = document.getElementById('searchBox');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const sortBy = document.getElementById('sortBy');
+
+            if (!searchBox || !categoryFilter || !typeFilter || !sortBy) {
+                console.warn('Filter elements not found');
+                return;
+            }
+
+            const searchTerm = searchBox.value.toLowerCase();
+            const categoryValue = categoryFilter.value;
+            const typeValue = typeFilter.value;
+            const sortByValue = sortBy.value;
 
             let filtered = [...allTransactions];
 
@@ -225,22 +244,22 @@
             }
 
             // Filtro de categoría
-            if (categoryFilter) {
+            if (categoryValue) {
                 filtered = filtered.filter(t =>
-                    t.category && t.category[0] === categoryFilter
+                    t.category && t.category[0] === categoryValue
                 );
             }
 
             // Filtro de tipo (ingreso/gasto)
-            if (typeFilter) {
+            if (typeValue) {
                 filtered = filtered.filter(t =>
-                    typeFilter === 'positive' ? t.amount > 0 : t.amount < 0
+                    typeValue === 'positive' ? t.amount > 0 : t.amount < 0
                 );
             }
 
             // Ordenamiento
             filtered.sort((a, b) => {
-                switch (sortBy) {
+                switch (sortByValue) {
                     case 'date-desc':
                         return new Date(b.date) - new Date(a.date);
                     case 'date-asc':
@@ -298,14 +317,69 @@
                     <div class="transaction-info">
                         <span class="transaction-date">${new Date(t.date).toLocaleDateString()}</span>
                         <span class="transaction-name">${t.merchant_name || t.name}</span>
-                        <span class="transaction-category">${t.category ? t.category[0] : 'Sin categoría'}</span>
+                        <span class="transaction-category">${t.category ? t.category[0] : 'Uncategorized'}</span>
                     </div>
-                    <div class="transaction-amount ${t.amount >= 0 ? 'amount-positive' : 'amount-negative'}">
-                        $${Math.abs(t.amount).toFixed(2)}
+                    <div class="transaction-actions">
+                        <div class="transaction-amount ${t.amount >= 0 ? 'amount-positive' : 'amount-negative'}">
+                            $${Math.abs(t.amount).toFixed(2)}
+                        </div>
+                        <button class="btn-icon" onclick="addToHistory(event, ${JSON.stringify(t).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
+
+        async function addToHistory(event, transaction) {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                let transactions = JSON.parse(localStorage.getItem(`transactions_${currentUser.id}`)) || [];
+
+                const newTransaction = {
+                    date: transaction.date,
+                    description: transaction.merchant_name || transaction.name,
+                    amount: transaction.amount,
+                    type: transaction.amount >= 0 ? 'income' : 'expense',
+                    category: transaction.category ? transaction.category[0] : 'Uncategorized'
+                };
+
+                transactions.push(newTransaction);
+                localStorage.setItem(`transactions_${currentUser.id}`, JSON.stringify(transactions));
+
+                const button = event.target.closest('.btn-icon');
+                button.classList.add('imported');
+                button.disabled = true;
+                button.title = 'Transaction imported';
+                button.innerHTML = '<i class="fas fa-check"></i>';
+
+                updateStatus('Transaction added to history successfully', 'success');
+
+            } catch (error) {
+                console.error('Error details:', error);
+                updateStatus('Error adding transaction: ' + error.message, 'error');
+            }
+        }
+
+        // Agregar función para verificar el estado actual
+        function checkCurrentTransactions() {
+            if (window.currentUser) {
+                const stored = localStorage.getItem(`transactions_${window.currentUser.id}`);
+                const transactions = stored ? JSON.parse(stored) : [];
+                console.log('Transacciones actuales:', transactions);
+            }
+        }
+
+        // Agregar botón para verificar transacciones (temporal, para debugging)
+        document.addEventListener('DOMContentLoaded', () => {
+            const debugButton = document.createElement('button');
+            debugButton.textContent = 'Check Transactions';
+            debugButton.onclick = checkCurrentTransactions;
+            debugButton.style.position = 'fixed';
+            debugButton.style.bottom = '10px';
+            debugButton.style.right = '10px';
+            document.body.appendChild(debugButton);
+        });
 
         function updateStatus(message, type) {
             const status = document.getElementById('status');
@@ -327,14 +401,6 @@
             // Reiniciar el proceso de conexión
             initializePlaidLink();
         }
-
-        // Agregar event listeners para los filtros
-        document.getElementById('searchBox').addEventListener('input', applyFilters);
-        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
-        document.getElementById('typeFilter').addEventListener('change', applyFilters);
-        document.getElementById('sortBy').addEventListener('change', applyFilters);
-
-        initializePlaidLink();
     </script>
 </body>
 

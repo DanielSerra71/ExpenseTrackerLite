@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Configuration, PlaidApi, PlaidEnvironments } = require('plaid');
+const Database = require('better-sqlite3');
+const db = new Database('./database.db', { verbose: console.log });
 const app = express();
 
 // Middleware
@@ -132,6 +134,79 @@ app.get('/transactions', async (req, res) => {
         });
     }
 });
+
+app.post('/transactions/add', (req, res) => {
+    try {
+        const transaction = req.body;
+        console.log('Received transaction:', transaction);
+
+        // Validar los datos requeridos
+        if (!transaction.date || !transaction.description || transaction.amount === undefined) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Insertar en la base de datos
+        const query = `
+            INSERT INTO transactions (
+                date,
+                description,
+                amount,
+                type,
+                category,
+                source
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        const values = [
+            transaction.date,
+            transaction.description,
+            transaction.amount,
+            transaction.type,
+            transaction.category,
+            transaction.source || 'bank_import'
+        ];
+
+        db.run(query, values, function (err) {
+            if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ error: 'Failed to add transaction to database' });
+            }
+
+            // Devolver la transacción con su ID
+            res.json({
+                success: true,
+                message: 'Transaction added successfully',
+                transaction: {
+                    ...transaction,
+                    id: this.lastID
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error('Error adding transaction:', error);
+        res.status(500).json({
+            error: 'Failed to add transaction'
+        });
+    }
+});
+
+// Asegurarse de que la tabla existe
+db.exec(`
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        description TEXT NOT NULL,
+        amount REAL NOT NULL,
+        type TEXT NOT NULL,
+        category TEXT,
+        source TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`);
+
+// Servir archivos estáticos al final
+app.use(express.static('public'));
 
 const PORT = process.env.PORT || 5500;
 app.listen(PORT, () => {

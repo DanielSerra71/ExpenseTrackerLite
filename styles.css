@@ -360,21 +360,30 @@ select {
 }
 
 .btn-icon {
-    background: var(--primary-color);
-    color: white;
+    background: none;
     border: none;
-    border-radius: 5px;
-    width: 40px;
-    height: 40px;
+    padding: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    transition: all 0.2s;
 }
 
 .btn-icon:hover {
-    background: #27ae60;
+    background-color: var(--bg-color);
+    transform: scale(1.1);
+}
+
+.btn-icon.imported {
+    background-color: var(--primary-color);
+    color: white;
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon.imported:hover {
+    transform: none;
 }
 
 optgroup {
@@ -638,7 +647,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .transaction-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
 }
 
 .transaction-amount {
