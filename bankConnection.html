@@ -339,7 +339,7 @@
                 const newTransaction = {
                     date: transaction.date,
                     description: transaction.merchant_name || transaction.name,
-                    amount: transaction.amount,
+                    amount: Math.abs(transaction.amount),
                     type: transaction.amount >= 0 ? 'income' : 'expense',
                     category: transaction.category ? transaction.category[0] : 'Uncategorized'
                 };
