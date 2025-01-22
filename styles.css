@@ -2402,6 +2402,11 @@ canvas {
     /* Azul */
 }
 
+.transaction-indicator.recurring.processed {
+    background-color: #9E9E9E;
+    /* Gris para ya procesados */
+}
+
 .transaction-indicator:hover .transaction-tooltip {
     display: block;
 }
@@ -2433,7 +2438,6 @@ canvas {
     margin: 2px;
     cursor: pointer;
     display: inline-block;
-    /* Asegurarnos que se muestre */
 }
 
 .transaction-dot.income {
@@ -2450,6 +2454,10 @@ canvas {
 
 .transaction-dot.recurring.completed {
     background-color: #2196F3;
+}
+
+.transaction-dot.recurring.processed {
+    background-color: #9E9E9E;
 }
 
 /* Asegurarnos que el hover funcione para todos los dots */

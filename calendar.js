@@ -9,6 +9,7 @@ export class Calendar {
 
     init() {
         this.loadData();
+        this.checkPendingRecurringPayments();
         this.initializeControls();
         this.renderCalendar();
 
@@ -86,15 +87,28 @@ export class Calendar {
 
                     const transactionDot = document.createElement('div');
 
-                    if (!transaction.dayOfMonth) {
-                        console.log('Creando dot normal:', transaction.type);
-                        transactionDot.className = `transaction-dot ${transaction.type}`;
-                    } else {
-                        console.log('Creando dot recurrente');
-                        transactionDot.className = 'transaction-dot recurring';
-                        if (date < new Date()) {
-                            transactionDot.className += ' completed';
+                    if ('dayOfMonth' in transaction) {
+                        const currentMonth = date.getMonth();
+                        const currentYear = date.getFullYear();
+                        const lastExecuted = transaction.lastExecuted ? new Date(transaction.lastExecuted) : null;
+
+                        // Si ya se ejecutó este mes, mostrar en gris
+                        if (lastExecuted &&
+                            lastExecuted.getMonth() === currentMonth &&
+                            lastExecuted.getFullYear() === currentYear) {
+                            transactionDot.className = 'transaction-dot recurring processed';
                         }
+                        // Si no se ha ejecutado y ya pasó la fecha, mostrar en azul y procesar
+                        else if (date < new Date() && !transaction.lastExecuted) {
+                            transactionDot.className = 'transaction-dot recurring completed';
+                            this.addToTransactionHistory(transaction, date);
+                        }
+                        // Si es futuro, mostrar en amarillo
+                        else {
+                            transactionDot.className = 'transaction-dot recurring';
+                        }
+                    } else {
+                        transactionDot.className = `transaction-dot ${transaction.type}`;
                     }
 
                     console.log('Clase final del dot:', transactionDot.className);
@@ -265,5 +279,80 @@ export class Calendar {
 
         dayElement.appendChild(indicatorsContainer);
         return dayElement;
+    }
+
+    // Método nuevo para agregar al historial
+    addToTransactionHistory(recurringPayment, date) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Obtener transacciones existentes
+        let transactions = JSON.parse(localStorage.getItem(`transactions_${currentUser.id}`)) || [];
+
+        // Formatear la fecha para comparación
+        const dateString = date.toISOString().split('T')[0];
+
+        // Verificar si ya existe esta transacción recurrente para este mes
+        const alreadyExists = transactions.some(t =>
+            t.description === recurringPayment.description &&
+            t.amount === recurringPayment.amount &&
+            new Date(t.date).getMonth() === date.getMonth() &&
+            new Date(t.date).getFullYear() === date.getFullYear()
+        );
+
+        // Solo agregar si no existe
+        if (!alreadyExists) {
+            // Crear la nueva transacción
+            const newTransaction = {
+                type: recurringPayment.type,
+                description: recurringPayment.description,
+                amount: recurringPayment.amount,
+                category: recurringPayment.category,
+                date: dateString,
+                userId: currentUser.id
+            };
+
+            // Agregar la nueva transacción
+            transactions.push(newTransaction);
+
+            // Guardar en localStorage
+            localStorage.setItem(`transactions_${currentUser.id}`, JSON.stringify(transactions));
+
+            // Marcar el pago recurrente como ejecutado
+            recurringPayment.lastExecuted = dateString;
+
+            // Actualizar pagos recurrentes en localStorage
+            let recurringPayments = JSON.parse(localStorage.getItem(`recurring_${currentUser.id}`));
+            const index = recurringPayments.findIndex(p => p.id === recurringPayment.id);
+            if (index !== -1) {
+                recurringPayments[index] = recurringPayment;
+                localStorage.setItem(`recurring_${currentUser.id}`, JSON.stringify(recurringPayments));
+            }
+        }
+    }
+
+    // Nueva función para verificar pagos pendientes
+    checkPendingRecurringPayments() {
+        const today = new Date();
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (!currentUser) return;
+
+        // Obtener pagos recurrentes
+        const recurringPayments = JSON.parse(localStorage.getItem(`recurring_${currentUser.id}`)) || [];
+
+        recurringPayments.forEach(payment => {
+            // Verificar si el pago debe ejecutarse
+            const lastExecuted = payment.lastExecuted ? new Date(payment.lastExecuted) : null;
+            const shouldExecute = !lastExecuted ||
+                (lastExecuted.getMonth() !== today.getMonth() ||
+                    lastExecuted.getFullYear() !== today.getFullYear());
+
+            // Si debe ejecutarse y ya pasó la fecha del mes actual
+            if (shouldExecute && today.getDate() >= payment.dayOfMonth) {
+                // Crear fecha de ejecución (día específico del mes actual)
+                const executionDate = new Date(today.getFullYear(), today.getMonth(), payment.dayOfMonth);
+                this.addToTransactionHistory(payment, executionDate);
+            }
+        });
     }
 } 
