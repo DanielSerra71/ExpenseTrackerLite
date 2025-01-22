@@ -12,6 +12,10 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --border-radius: 10px;
     --box-shadow: 0 2px 10px var(--shadow-color);
+    --success-color: #4CAF50;
+    /* Verde */
+    --error-color: #f44336;
+    /* Rojo */
 }
 
 [data-theme="dark"] {
@@ -1684,9 +1688,10 @@ canvas {
     box-shadow: var(--card-shadow);
     font-size: 0.85rem;
     max-width: 180px;
-    /* Posicionamiento en el centro del calendario */
+    /* Ajustamos la posición vertical para que no se salga por abajo */
     left: 50%;
-    top: 50%;
+    top: 40%;
+    /* Cambiado de 50% a 40% para subirlo un poco */
     transform: translate(-50%, -50%);
 }
 
@@ -2371,24 +2376,30 @@ canvas {
 .transaction-indicator {
     position: relative;
     /* Importante para el posicionamiento del tooltip */
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    margin: 1px;
+    margin: 2px;
     cursor: pointer;
     transition: transform 0.2s;
 }
 
 .transaction-indicator.income {
-    background-color: #4CAF50;
+    background-color: var(--success-color);
 }
 
 .transaction-indicator.expense {
-    background-color: #f44336;
+    background-color: var(--error-color);
 }
 
 .transaction-indicator.recurring {
     background-color: #FFC107;
+    /* Amarillo */
+}
+
+.transaction-indicator.recurring.completed {
+    background-color: #2196F3;
+    /* Azul */
 }
 
 .transaction-indicator:hover .transaction-tooltip {
@@ -2416,28 +2427,35 @@ canvas {
 }
 
 .transaction-dot {
-    position: relative;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    cursor: pointer;
     margin: 2px;
+    cursor: pointer;
+    display: inline-block;
+    /* Asegurarnos que se muestre */
 }
 
 .transaction-dot.income {
-    background-color: #4CAF50;
-    /* Verde para ingresos */
+    background-color: var(--success-color);
 }
 
 .transaction-dot.expense {
-    background-color: #f44336;
-    /* Rojo para gastos */
+    background-color: var(--error-color);
 }
 
+.transaction-dot.recurring {
+    background-color: #FFC107;
+}
+
+.transaction-dot.recurring.completed {
+    background-color: #2196F3;
+}
+
+/* Asegurarnos que el hover funcione para todos los dots */
 .transaction-dot:hover {
     transform: scale(1.5);
     transition: transform 0.2s ease;
-    z-index: 1;
 }
 
 /* Estilos para el tooltip de transacciones */
@@ -2451,9 +2469,10 @@ canvas {
     box-shadow: var(--card-shadow);
     font-size: 0.85rem;
     max-width: 180px;
-    /* Posicionamiento en el centro del calendario */
+    /* Ajustamos la posición vertical para que no se salga por abajo */
     left: 50%;
-    top: 50%;
+    top: 40%;
+    /* Cambiado de 50% a 40% para subirlo un poco */
     transform: translate(-50%, -50%);
 }
 

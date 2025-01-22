@@ -18,32 +18,21 @@ export class Calendar {
 
     loadData() {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        console.log('Usuario actual:', currentUser); // Debug usuario
+        console.log('Usuario actual:', currentUser);
 
         if (currentUser) {
             // Cargar transacciones normales
             const storedTransactions = localStorage.getItem(`transactions_${currentUser.id}`);
-            console.log('Transacciones almacenadas (raw):', storedTransactions); // Debug transacciones raw
-
             if (storedTransactions) {
-                this.transactions = JSON.parse(storedTransactions).map(t => ({
-                    ...t,
-                    date: new Date(t.date).toISOString().split('T')[0] // Normalizar formato de fecha
-                }));
-                console.log('Transacciones parseadas:', this.transactions); // Debug transacciones parseadas
-
-                // Debug: Mostrar las transacciones ordenadas por fecha
-                console.log('Transacciones ordenadas por fecha:',
-                    this.transactions.sort((a, b) => new Date(a.date) - new Date(b.date)));
+                this.transactions = JSON.parse(storedTransactions);
             }
-
-            // Debug: Verificar las transacciones después de cargarlas
-            console.log('Transacciones después de formatear:', this.transactions);
 
             // Cargar pagos recurrentes
             const storedRecurring = localStorage.getItem(`recurring_${currentUser.id}`);
+            console.log('Pagos recurrentes almacenados:', storedRecurring); // Debug
             if (storedRecurring) {
                 this.recurringPayments = JSON.parse(storedRecurring);
+                console.log('Pagos recurrentes parseados:', this.recurringPayments); // Debug
             }
         }
     }
@@ -84,7 +73,6 @@ export class Calendar {
             const date = new Date(year, month, day);
             const cell = this.createDayCell(day);
 
-            // Agregar transacciones del día
             const dayTransactions = this.getTransactionsForDate(date);
 
             if (dayTransactions && dayTransactions.length > 0) {
@@ -92,10 +80,28 @@ export class Calendar {
                 transactionsContainer.className = 'day-transactions';
 
                 dayTransactions.forEach(transaction => {
+                    console.log('Tipo de transacción:', transaction);
+                    console.log('¿Es recurrente?:', 'dayOfMonth' in transaction);
+                    console.log('Tipo:', transaction.type);
+
                     const transactionDot = document.createElement('div');
+
+                    if (!transaction.dayOfMonth) {
+                        console.log('Creando dot normal:', transaction.type);
+                        transactionDot.className = `transaction-dot ${transaction.type}`;
+                    } else {
+                        console.log('Creando dot recurrente');
+                        transactionDot.className = 'transaction-dot recurring';
+                        if (date < new Date()) {
+                            transactionDot.className += ' completed';
+                        }
+                    }
+
+                    console.log('Clase final del dot:', transactionDot.className);
+
                     const amount = Math.abs(parseFloat(transaction.amount)).toFixed(2);
 
-                    // Crear el tooltip personalizado
+                    // Crear el tooltip
                     const tooltip = document.createElement('div');
                     tooltip.className = 'transaction-tooltip';
                     tooltip.innerHTML = `
@@ -110,27 +116,12 @@ export class Calendar {
                             </div>
                             <div class="tooltip-row">
                                 <span>Amount:</span>
-                                <span class="${transaction.type}">
-                                    ${transaction.type === 'income' ? '+' : '-'}$${amount}
-                                </span>
-                            </div>
-                            <div class="tooltip-row">
-                                <span>Date:</span>
-                                <span>${new Date(transaction.date).toLocaleDateString()}</span>
+                                <span class="${transaction.type}">$${amount}</span>
                             </div>
                         </div>
                     `;
 
-                    // Determinar el tipo de transacción y aplicar el estilo
-                    if (transaction.type === 'income') {
-                        transactionDot.className = 'transaction-dot income';
-                    } else {
-                        transactionDot.className = 'transaction-dot expense';
-                    }
-
-                    // Agregar el tooltip al dot
                     transactionDot.appendChild(tooltip);
-
                     transactionsContainer.appendChild(transactionDot);
                 });
 
@@ -186,9 +177,7 @@ export class Calendar {
 
         // Obtener transacciones normales
         const dayTransactions = this.transactions.filter(t => {
-            // Asegurarse que la fecha de la transacción esté en el formato correcto
             const transactionDate = new Date(t.date).toISOString().split('T')[0];
-            console.log('Comparando:', transactionDate, 'con', dateString);
             return transactionDate === dateString;
         });
 
@@ -200,6 +189,7 @@ export class Calendar {
         console.log('Transacciones encontradas:', dayTransactions);
         console.log('Pagos recurrentes encontrados:', recurringForDay);
 
+        // Combinar ambos arrays
         return [...dayTransactions, ...recurringForDay];
     }
 
@@ -231,6 +221,7 @@ export class Calendar {
         dayElement.appendChild(dayNumber);
 
         const transactions = this.getTransactionsForDate(date);
+        const today = new Date();
 
         const indicatorsContainer = document.createElement('div');
         indicatorsContainer.classList.add('transaction-indicators');
@@ -255,6 +246,12 @@ export class Calendar {
 
             if ('dayOfMonth' in transaction) {
                 indicator.classList.add('transaction-indicator', 'recurring');
+                // Verificar si el pago recurrente ya pasó este mes
+                if (date.getMonth() === today.getMonth() &&
+                    date.getFullYear() === today.getFullYear() &&
+                    date.getDate() < today.getDate()) {
+                    indicator.classList.add('completed');
+                }
             } else {
                 indicator.classList.add(
                     'transaction-indicator',
