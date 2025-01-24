@@ -1086,14 +1086,33 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .charts-container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 30px;
     padding: 20px;
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    margin: 20px auto;
-    max-width: 1200px;
+}
+
+.charts-container canvas {
+    min-height: 300px;
+    max-height: 400px;
+    margin: 0 auto;
+}
+
+/* Para los gráficos de categorías */
+#expensesByCategoryChart,
+#incomeByCategoryChart {
+    margin-bottom: 30px;
+    position: relative;
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* Para los gráficos de comparación y proyección */
+#monthlyComparisonChart,
+#savingsProjectionChart {
+    grid-column: 1 / -1;
+    /* Ocupan todo el ancho */
+    width: 100% !important;
+    height: 300px !important;
 }
 
 .chart-wrapper {
@@ -2588,4 +2607,70 @@ canvas {
 
 .tooltip-content {
     font-size: 8px;
+}
+
+.month-details {
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+}
+
+.month-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.details-column {
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 6px;
+    border-top: 4px solid transparent;
+}
+
+/* Colores de los bordes superiores */
+.details-column:nth-child(1) {
+    border-top-color: var(--success-color);
+    /* Verde para ingresos */
+}
+
+.details-column:nth-child(2) {
+    border-top-color: var(--danger-color);
+    /* Rojo para gastos */
+}
+
+.details-column:nth-child(3) {
+    border-top-color: #FFC107;
+    /* Amarillo para recurrentes */
+}
+
+/* Tablets */
+@media screen and (max-width: 768px) {
+    .month-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .details-column:nth-child(3) {
+        grid-column: 1 / -1;
+        /* La columna de recurrentes ocupa todo el ancho */
+    }
+}
+
+/* Móviles */
+@media screen and (max-width: 480px) {
+    .month-details-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .month-details {
+        padding: 15px;
+    }
+
+    .details-column {
+        padding: 12px;
+    }
 }

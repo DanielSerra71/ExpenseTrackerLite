@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
     <div id="notification-container"></div>
     <div class="container">
@@ -25,6 +27,7 @@
         <div class="reports-section">
             <div class="charts-container">
                 <canvas id="expensesByCategoryChart"></canvas>
+                <canvas id="incomeByCategoryChart"></canvas>
                 <canvas id="monthlyComparisonChart"></canvas>
                 <canvas id="savingsProjectionChart"></canvas>
             </div>
@@ -59,27 +62,27 @@
     <script>
         // Load saved preferences
         const savedTheme = localStorage.getItem('theme') || 'light';
-        
+
         // Apply theme
         document.documentElement.setAttribute('data-theme', savedTheme);
-        
+
         // Update icons based on theme
         const themeIcon = document.querySelector('.theme-toggle i');
         themeIcon.classList.remove('fa-sun', 'fa-moon');
         themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
-        
+
         // Theme button functionality
         document.querySelector('.theme-toggle').addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            
+
             const icon = document.querySelector('.theme-toggle i');
             icon.classList.remove('fa-sun', 'fa-moon');
             icon.classList.add(newTheme === 'dark' ? 'fa-sun' : 'fa-moon');
         });
-        
+
         // Function to update UI language
         function updateUILanguage() {
             const translations = {
@@ -88,7 +91,7 @@
                 statisticsSummary: 'Statistical Summary',
                 recommendations: 'Recommendations'
             };
-            
+
             document.querySelectorAll('[data-translate]').forEach(element => {
                 const key = element.getAttribute('data-translate');
                 if (translations[key]) {
@@ -96,7 +99,7 @@
                 }
             });
         }
-        
+
         // Apply initial translations
         updateUILanguage();
     </script>
@@ -104,4 +107,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="reports.js"></script>
 </body>
-</html> 
+
+</html>

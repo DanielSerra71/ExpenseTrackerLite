@@ -8,12 +8,12 @@ class FinancialReports {
                 expensesByCategory: 'Gastos por Categoría',
                 monthlyComparison: 'Comparativa Mensual',
                 savingsProjection: 'Proyección de Ahorro',
-                
+
                 // Etiquetas de datos
                 income: 'Ingresos',
                 expenses: 'Gastos',
                 savings: 'Ahorros',
-                
+
                 // Categorías
                 housing: 'Vivienda',
                 food: 'Alimentación',
@@ -23,16 +23,16 @@ class FinancialReports {
                 healthcare: 'Salud',
                 education: 'Educación',
                 shopping: 'Compras',
-                
+
                 // Meses
                 months: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                
+
                 // Estadísticas
                 statisticsSummary: 'Resumen Estadístico',
                 totalExpenses: 'Total Gastos',
                 dailyAverage: 'Promedio Diario',
                 savingsRate: 'Tasa de Ahorro',
-                
+
                 // Recomendaciones
                 recommendations: 'Recomendaciones',
                 highExpenseWarning: 'El gasto diario promedio excede el presupuesto',
@@ -45,12 +45,12 @@ class FinancialReports {
                 expensesByCategory: 'Expenses by Category',
                 monthlyComparison: 'Monthly Comparison',
                 savingsProjection: 'Savings Projection',
-                
+
                 // Data labels
                 income: 'Income',
                 expenses: 'Expenses',
                 savings: 'Savings',
-                
+
                 // Categories
                 housing: 'Housing',
                 food: 'Food',
@@ -60,16 +60,16 @@ class FinancialReports {
                 healthcare: 'Healthcare',
                 education: 'Education',
                 shopping: 'Shopping',
-                
+
                 // Months
                 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                
+
                 // Statistics
                 statisticsSummary: 'Statistical Summary',
                 totalExpenses: 'Total Expenses',
                 dailyAverage: 'Daily Average',
                 savingsRate: 'Savings Rate',
-                
+
                 // Recommendations
                 recommendations: 'Recommendations',
                 highExpenseWarning: 'Daily average expense exceeds budget',
@@ -93,7 +93,7 @@ class FinancialReports {
     loadTransactions() {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return [];
-        
+
         const transactions = localStorage.getItem(`transactions_${currentUser.id}`);
         return transactions ? JSON.parse(transactions) : [];
     }
@@ -106,8 +106,11 @@ class FinancialReports {
     }
 
     createExpensesByCategoryChart() {
-        const ctx = document.getElementById('expensesByCategoryChart').getContext('2d');
-        this.charts.expensesByCategory = new Chart(ctx, {
+        const ctxExpenses = document.getElementById('expensesByCategoryChart').getContext('2d');
+        const ctxIncome = document.getElementById('incomeByCategoryChart').getContext('2d');
+
+        // Gráfico de gastos
+        this.charts.expensesByCategory = new Chart(ctxExpenses, {
             type: 'doughnut',
             data: {
                 labels: [],
@@ -121,26 +124,42 @@ class FinancialReports {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 1,
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: {
-                            padding: 20,
-                            font: { size: 12 }
-                        }
+                        position: 'right'
                     },
                     title: {
                         display: true,
-                        text: this.translate('expensesByCategory'),
-                        font: { size: 16 }
+                        text: 'Expenses by Category'
                     }
-                },
-                layout: {
-                    padding: 20
-                },
-                cutout: '60%'
+                }
+            }
+        });
+
+        // Gráfico de ingresos
+        this.charts.incomeByCategory = new Chart(ctxIncome, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#2ecc71', '#3498db', '#9b59b6', '#f1c40f',
+                        '#e67e22', '#e74c3c', '#1abc9c', '#34495e'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Income by Category'
+                    }
+                }
             }
         });
     }
@@ -199,15 +218,45 @@ class FinancialReports {
 
     async generateMonthlyReport() {
         try {
-            const data = await this.collectMonthlyData();
-            
-            // Actualizar gráficos
-            this.updateExpensesByCategoryChart(data.expenses);
-            this.updateMonthlyComparisonChart(data.comparison);
-            this.updateSavingsProjectionChart(data.savings);
+            const currentDate = new Date();
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+            // Obtener datos de gastos e ingresos
+            const expensesData = await this.getExpensesByCategory(firstDay, lastDay);
+            const incomeData = await this.getIncomeByCategory(firstDay, lastDay);
+
+            console.log('Expenses Data:', expensesData); // Debug
+            console.log('Income Data:', incomeData);     // Debug
+
+            // Actualizar gráfico de gastos
+            if (this.charts.expensesByCategory) {
+                this.charts.expensesByCategory.data.labels = expensesData.map(item => item.category);
+                this.charts.expensesByCategory.data.datasets[0].data = expensesData.map(item => item.amount);
+                this.charts.expensesByCategory.update();
+            } else {
+                console.error('Expenses chart not initialized'); // Debug
+            }
+
+            // Actualizar gráfico de ingresos
+            if (this.charts.incomeByCategory) {
+                this.charts.incomeByCategory.data.labels = incomeData.map(item => item.category);
+                this.charts.incomeByCategory.data.datasets[0].data = incomeData.map(item => item.amount);
+                this.charts.incomeByCategory.update();
+            } else {
+                console.error('Income chart not initialized'); // Debug
+            }
+
+            // Actualizar gráfico de comparación mensual
+            const comparison = await this.getMonthlyComparison();
+            this.updateMonthlyComparisonChart(comparison);
+
+            // Actualizar gráfico de proyección de ahorro
+            const savingsData = await this.getSavingsData();
+            this.updateSavingsProjectionChart(savingsData);
 
             // Generar resumen estadístico
-            const statistics = this.calculateStatistics(data);
+            const statistics = this.calculateStatistics({ expenses: expensesData, comparison });
             this.displayStatistics(statistics);
 
             // Generar recomendaciones
@@ -220,8 +269,8 @@ class FinancialReports {
                 recommendations
             };
         } catch (error) {
-            console.error('Error generando reporte mensual:', error);
-            throw new Error('No se pudo generar el reporte mensual');
+            console.error('Error generating monthly report:', error);
+            throw new Error('Could not generate monthly report');
         }
     }
 
@@ -240,11 +289,11 @@ class FinancialReports {
 
     async getExpensesByCategory(startDate, endDate) {
         const expenses = this.transactions
-            .filter(t => t.type === 'expense' && 
-                        t.date >= startDate.toISOString().split('T')[0] && 
-                        t.date <= endDate.toISOString().split('T')[0]);
+            .filter(t => t.type === 'expense' &&
+                new Date(t.date) >= startDate &&
+                new Date(t.date) <= endDate);
 
-        // Agrupar por categoría
+        const uniqueCategories = [...new Set(expenses.map(t => t.category))];
         const categoryTotals = expenses.reduce((acc, transaction) => {
             if (!acc[transaction.category]) {
                 acc[transaction.category] = 0;
@@ -253,17 +302,37 @@ class FinancialReports {
             return acc;
         }, {});
 
-        // Convertir a array de objetos
-        return Object.entries(categoryTotals).map(([category, amount]) => ({
-            category,
-            amount
+        return uniqueCategories.map(category => ({
+            category: this.translate(category),
+            amount: categoryTotals[category]
+        }));
+    }
+
+    async getIncomeByCategory(startDate, endDate) {
+        const income = this.transactions
+            .filter(t => t.type === 'income' &&
+                new Date(t.date) >= startDate &&
+                new Date(t.date) <= endDate);
+
+        const uniqueCategories = [...new Set(income.map(t => t.category))];
+        const categoryTotals = income.reduce((acc, transaction) => {
+            if (!acc[transaction.category]) {
+                acc[transaction.category] = 0;
+            }
+            acc[transaction.category] += transaction.amount;
+            return acc;
+        }, {});
+
+        return uniqueCategories.map(category => ({
+            category: this.translate(category),
+            amount: categoryTotals[category]
         }));
     }
 
     async getMonthlyComparison() {
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         const currentDate = new Date();
-        const lastSixMonths = Array.from({length: 6}, (_, i) => {
+        const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
             const d = new Date(currentDate);
             d.setMonth(d.getMonth() - i);
             return d;
@@ -277,7 +346,7 @@ class FinancialReports {
             const startStr = startDate.toISOString().split('T')[0];
             const endStr = endDate.toISOString().split('T')[0];
 
-            const monthTransactions = this.transactions.filter(t => 
+            const monthTransactions = this.transactions.filter(t =>
                 t.date >= startStr && t.date <= endStr
             );
 
@@ -302,14 +371,14 @@ class FinancialReports {
     async getSavingsData() {
         const monthlyData = await this.getMonthlyComparison();
         const savings = monthlyData.income.map((income, i) => income - monthlyData.expenses[i]);
-        
+
         // Proyección para los próximos 6 meses
         const avgSaving = savings.reduce((a, b) => a + b, 0) / savings.length;
-        const projected = Array.from({length: 6}, (_, i) => avgSaving * (i + 1));
+        const projected = Array.from({ length: 6 }, (_, i) => avgSaving * (i + 1));
 
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         const currentMonth = new Date().getMonth();
-        const futureMonths = Array.from({length: 6}, (_, i) => months[(currentMonth + i + 1) % 12]);
+        const futureMonths = Array.from({ length: 6 }, (_, i) => months[(currentMonth + i + 1) % 12]);
 
         return {
             labels: futureMonths,
@@ -352,7 +421,7 @@ class FinancialReports {
             const doc = new jsPDF('landscape', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
-            
+
             // Calcular dimensiones óptimas
             const margin = 20;
             const usableWidth = pageWidth - (margin * 2);
@@ -421,7 +490,7 @@ class FinancialReports {
             doc.setFontSize(16);
             doc.text('Recommendations', margin, yPos);
             yPos += lineHeight * 1.5;
-            
+
             doc.setFontSize(12);
             const recommendations = this.generateRecommendations(statistics);
             recommendations.forEach((rec, index) => {
@@ -539,8 +608,8 @@ class FinancialReports {
         const previousMonth = currentMonth - 1;
         if (previousMonth < 0) return 0;
 
-        return (comparison.expenses[currentMonth] - comparison.expenses[previousMonth]) 
-               / comparison.expenses[previousMonth];
+        return (comparison.expenses[currentMonth] - comparison.expenses[previousMonth])
+            / comparison.expenses[previousMonth];
     }
 
     // Agregar un método para actualizar las traducciones
@@ -566,12 +635,12 @@ class FinancialReports {
         // Usar el mismo formato YYYY-MM-DD para comparación
         const start = new Date(date.getFullYear(), date.getMonth(), 1);
         const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        
+
         const startStr = start.toISOString().split('T')[0];
         const endStr = end.toISOString().split('T')[0];
 
         // Filtrar transacciones usando el mismo método que monthlyManager
-        const monthTransactions = transactions.filter(t => 
+        const monthTransactions = transactions.filter(t =>
             t.date >= startStr && t.date <= endStr
         );
 

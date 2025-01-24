@@ -160,6 +160,33 @@ export class Calendar {
 
             calendarGrid.appendChild(cell);
         }
+
+        // Agregamos la sección de detalles después del calendario
+        const detailsContainer = document.createElement('div');
+        detailsContainer.className = 'month-details';
+
+        const detailsHTML = `
+            <div class="month-details-header">
+                <h3>Month Details</h3>
+            </div>
+            <div class="month-details-grid">
+                <div class="details-column">
+                    <h4>Income</h4>
+                    ${this.getTransactionsHTML(this.transactions.filter(t => t.type === 'income'))}
+                </div>
+                <div class="details-column">
+                    <h4>Expenses</h4>
+                    ${this.getTransactionsHTML(this.transactions.filter(t => t.type === 'expense'))}
+                </div>
+                <div class="details-column">
+                    <h4>Recurring</h4>
+                    ${this.getTransactionsHTML(this.recurringPayments)}
+                </div>
+            </div>
+        `;
+
+        detailsContainer.innerHTML = detailsHTML;
+        calendarGrid.parentNode.insertBefore(detailsContainer, calendarGrid.nextSibling);
     }
 
     createDayCell(day) {
@@ -354,5 +381,18 @@ export class Calendar {
                 this.addToTransactionHistory(payment, executionDate);
             }
         });
+    }
+
+    getTransactionsHTML(transactions) {
+        let html = '';
+        transactions.forEach(transaction => {
+            html += `
+                <div class="transaction-item">
+                    <span>${transaction.description}</span>
+                    <span class="${transaction.type}">$${transaction.amount}</span>
+                </div>
+            `;
+        });
+        return html;
     }
 } 
