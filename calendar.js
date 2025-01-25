@@ -161,9 +161,31 @@ export class Calendar {
             calendarGrid.appendChild(cell);
         }
 
-        // Agregamos la sección de detalles después del calendario
+        // Primero, eliminar el Month Details anterior si existe
+        const existingDetails = document.querySelector('.month-details');
+        if (existingDetails) {
+            existingDetails.remove();
+        }
+
+        // Crear el nuevo Month Details
         const detailsContainer = document.createElement('div');
         detailsContainer.className = 'month-details';
+
+        // Filtrar transacciones para el mes actual que se está viendo
+        const currentMonthTransactions = this.transactions.filter(t => {
+            const transactionDate = new Date(t.date);
+            return transactionDate.getMonth() === this.currentDate.getMonth() &&
+                transactionDate.getFullYear() === this.currentDate.getFullYear();
+        });
+
+        // Filtrar pagos recurrentes para mostrar solo los pendientes (amarillos)
+        const currentMonthRecurring = this.recurringPayments.filter(payment => {
+            const lastExecuted = payment.lastExecuted ? new Date(payment.lastExecuted) : null;
+            // Solo mostrar los que NO han sido ejecutados este mes
+            return !lastExecuted ||
+                lastExecuted.getMonth() !== this.currentDate.getMonth() ||
+                lastExecuted.getFullYear() !== this.currentDate.getFullYear();
+        });
 
         const detailsHTML = `
             <div class="month-details-header">
@@ -172,15 +194,15 @@ export class Calendar {
             <div class="month-details-grid">
                 <div class="details-column">
                     <h4>Income</h4>
-                    ${this.getTransactionsHTML(this.transactions.filter(t => t.type === 'income'))}
+                    ${this.getTransactionsHTML(currentMonthTransactions.filter(t => t.type === 'income'))}
                 </div>
                 <div class="details-column">
                     <h4>Expenses</h4>
-                    ${this.getTransactionsHTML(this.transactions.filter(t => t.type === 'expense'))}
+                    ${this.getTransactionsHTML(currentMonthTransactions.filter(t => t.type === 'expense'))}
                 </div>
                 <div class="details-column">
                     <h4>Recurring</h4>
-                    ${this.getTransactionsHTML(this.recurringPayments)}
+                    ${this.getTransactionsHTML(currentMonthRecurring)}
                 </div>
             </div>
         `;
