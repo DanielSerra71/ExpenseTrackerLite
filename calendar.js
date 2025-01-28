@@ -234,14 +234,15 @@ export class Calendar {
     }
 
     getTransactionsForDate(date) {
-        // Formatear la fecha para comparar con las transacciones
         const dateString = date.toISOString().split('T')[0];
-        console.log('Buscando transacciones para fecha:', dateString);
+        const today = new Date();
 
-        // Obtener transacciones normales
+        // Obtener transacciones normales solo para el mes actual
         const dayTransactions = this.transactions.filter(t => {
             const transactionDate = new Date(t.date).toISOString().split('T')[0];
-            return transactionDate === dateString;
+            const isCurrentMonth = new Date(t.date).getMonth() === today.getMonth() &&
+                new Date(t.date).getFullYear() === today.getFullYear();
+            return transactionDate === dateString && isCurrentMonth;
         });
 
         // Obtener pagos recurrentes para esta fecha
@@ -249,10 +250,6 @@ export class Calendar {
             return payment.dayOfMonth === date.getDate();
         });
 
-        console.log('Transacciones encontradas:', dayTransactions);
-        console.log('Pagos recurrentes encontrados:', recurringForDay);
-
-        // Combinar ambos arrays
         return [...dayTransactions, ...recurringForDay];
     }
 
@@ -333,19 +330,16 @@ export class Calendar {
     // Método nuevo para agregar al historial
     addToTransactionHistory(recurringPayment, date) {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
-        // Obtener transacciones existentes
         let transactions = JSON.parse(localStorage.getItem(`transactions_${currentUser.id}`)) || [];
 
         // Formatear la fecha para comparación
         const dateString = date.toISOString().split('T')[0];
 
-        // Verificar si ya existe esta transacción recurrente para este mes
+        // Verificación más específica
         const alreadyExists = transactions.some(t =>
             t.description === recurringPayment.description &&
             t.amount === recurringPayment.amount &&
-            new Date(t.date).getMonth() === date.getMonth() &&
-            new Date(t.date).getFullYear() === date.getFullYear()
+            t.date === dateString  // Comparación exacta de la fecha
         );
 
         // Solo agregar si no existe
