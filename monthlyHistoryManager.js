@@ -12,8 +12,12 @@ export const monthlyHistoryManager = {
 
         // Agrupar por mes y calcular totales
         transactions.forEach(transaction => {
-            const date = new Date(transaction.date);
-            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+            // Asegurar que la fecha se procese correctamente
+            const [year, month, day] = transaction.date.split('-');
+            const date = new Date(year, month - 1, day);
+
+            // Crear la clave del mes usando los valores originales de la fecha
+            const monthKey = transaction.date.substring(0, 7); // Toma YYYY-MM
 
             if (!monthlyGroups[monthKey]) {
                 monthlyGroups[monthKey] = {
