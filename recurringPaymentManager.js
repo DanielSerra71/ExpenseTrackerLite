@@ -154,23 +154,26 @@ export const recurringPaymentManager = {
         const categorySelect = document.getElementById('recurring-category');
         categorySelect.innerHTML = '<option value="">Select category</option>';
 
-        if (type === 'income') {
+        if (type === 'expense') {
             categorySelect.innerHTML += `
-                <option value="salary">${translations['en'].salary}</option>
-                <option value="business">${translations['en'].business}</option>
-                <option value="investments">${translations['en'].investments}</option>
-                <option value="extras">${translations['en'].extras}</option>
-            `;
-        } else if (type === 'expense') {
-            categorySelect.innerHTML += `
-                <option value="housing">${translations['en'].housing}</option>
-                <option value="food">${translations['en'].food}</option>
+                <option value="rent-expense">${translations['en'].rentExpense}</option>
+                <option value="utilities">${translations['en'].utilities}</option>
+                <option value="groceries">${translations['en'].groceries}</option>
                 <option value="transport">${translations['en'].transport}</option>
-                <option value="services">${translations['en'].services}</option>
+                <option value="internet">${translations['en'].internet}</option>
                 <option value="entertainment">${translations['en'].entertainment}</option>
                 <option value="healthcare">${translations['en'].healthcare}</option>
+                <option value="clothing">${translations['en'].clothing}</option>
+                <option value="restaurants">${translations['en'].restaurants}</option>
+                <option value="housing">${translations['en'].housing}</option>
+                <option value="food">${translations['en'].food}</option>
+                <option value="services">${translations['en'].services}</option>
                 <option value="education">${translations['en'].education}</option>
                 <option value="shopping">${translations['en'].shopping}</option>
+                <option value="Home maintenance">Home Maintenance</option>
+                <option value="subscriptions">Subscriptions</option>
+                <option value="insurance">Insurance</option>
+                <option value="other">Other</option>
             `;
         }
     },
