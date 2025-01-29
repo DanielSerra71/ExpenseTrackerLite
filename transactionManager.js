@@ -31,7 +31,7 @@ export const transactionManager = {
 
     handleSubmit(e) {
         e.preventDefault();
-        
+
         // Verificar si hay un usuario autenticado
         if (!window.currentUser) {
             window.showNotification(
@@ -187,7 +187,31 @@ export const transactionManager = {
         const categorySelect = this.elements.categorySelect;
         categorySelect.innerHTML = `<option value="">${window.translations[currentLang].selectCategory}</option>`;
 
-        if (type === 'income') {
+        if (type === 'expense') {
+            categorySelect.innerHTML += `
+                <option value="expense-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
+                    ${window.translations[currentLang].expenseCategories}
+                </option>
+                <option value="rent-expense">${window.translations[currentLang].rentExpense}</option>
+                <option value="utilities">${window.translations[currentLang].utilities}</option>
+                <option value="groceries">${window.translations[currentLang].groceries}</option>
+                <option value="transport">${window.translations[currentLang].transport}</option>
+                <option value="internet">${window.translations[currentLang].internet}</option>
+                <option value="entertainment">${window.translations[currentLang].entertainment}</option>
+                <option value="healthcare">${window.translations[currentLang].healthcare}</option>
+                <option value="clothing">${window.translations[currentLang].clothing}</option>
+                <option value="restaurants">${window.translations[currentLang].restaurants}</option>
+                <option value="housing">${window.translations[currentLang].housing}</option>
+                <option value="food">${window.translations[currentLang].food}</option>
+                <option value="services">${window.translations[currentLang].services}</option>
+                <option value="education">${window.translations[currentLang].education}</option>
+                <option value="shopping">${window.translations[currentLang].shopping}</option>
+                <option value="Home maintenance">Home Maintenance</option>
+                <option value="subscriptions">Subscriptions</option>
+                <option value="insurance">Insurance</option>
+                <option value="other">Other</option>
+            `;
+        } else if (type === 'income') {
             categorySelect.innerHTML += `
                 <option value="income-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
                     ${window.translations[currentLang].incomeCategories}
@@ -197,20 +221,6 @@ export const transactionManager = {
                 <option value="investments">${window.translations[currentLang].investments}</option>
                 <option value="extras">${window.translations[currentLang].extras}</option>
             `;
-        } else if (type === 'expense') {
-            categorySelect.innerHTML += `
-                <option value="expense-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
-                    ${window.translations[currentLang].expenseCategories}
-                </option>
-                <option value="housing">${window.translations[currentLang].housing}</option>
-                <option value="food">${window.translations[currentLang].food}</option>
-                <option value="transport">${window.translations[currentLang].transport}</option>
-                <option value="services">${window.translations[currentLang].services}</option>
-                <option value="entertainment">${window.translations[currentLang].entertainment}</option>
-                <option value="healthcare">${window.translations[currentLang].healthcare}</option>
-                <option value="education">${window.translations[currentLang].education}</option>
-                <option value="shopping">${window.translations[currentLang].shopping}</option>
-            `;
         }
     },
 
@@ -219,19 +229,7 @@ export const transactionManager = {
         const presetSelect = this.elements.presetSelect;
         presetSelect.innerHTML = `<option value="">${window.translations[currentLang].selectOrCreate}</option>`;
 
-        // Agregar presets predefinidos
-        if (type === 'income') {
-            presetSelect.innerHTML += `
-                <option value="income-presets-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
-                    ${window.translations[currentLang].frequentIncomes}
-                </option>
-                <option value="salary">${window.translations[currentLang].salary}</option>
-                <option value="freelance">${window.translations[currentLang].freelance}</option>
-                <option value="investments">${window.translations[currentLang].investments}</option>
-                <option value="rent">${window.translations[currentLang].rent}</option>
-                <option value="bonus">${window.translations[currentLang].bonus}</option>
-            `;
-        } else if (type === 'expense') {
+        if (type === 'expense') {
             presetSelect.innerHTML += `
                 <option value="expense-presets-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
                     ${window.translations[currentLang].frequentExpenses}
@@ -245,6 +243,26 @@ export const transactionManager = {
                 <option value="healthcare">${window.translations[currentLang].healthcare}</option>
                 <option value="clothing">${window.translations[currentLang].clothing}</option>
                 <option value="restaurants">${window.translations[currentLang].restaurants}</option>
+                <option value="housing">${window.translations[currentLang].housing}</option>
+                <option value="food">${window.translations[currentLang].food}</option>
+                <option value="services">${window.translations[currentLang].services}</option>
+                <option value="education">${window.translations[currentLang].education}</option>
+                <option value="shopping">${window.translations[currentLang].shopping}</option>
+                <option value="Home maintenance">Home Maintenance</option>
+                <option value="subscriptions">Subscriptions</option>
+                <option value="insurance">Insurance</option>
+                <option value="other">Other</option>
+            `;
+        } else if (type === 'income') {
+            presetSelect.innerHTML += `
+                <option value="income-presets-header" disabled style="font-weight: bold; background-color: var(--bg-color)">
+                    ${window.translations[currentLang].frequentIncomes}
+                </option>
+                <option value="salary">${window.translations[currentLang].salary}</option>
+                <option value="freelance">${window.translations[currentLang].freelance}</option>
+                <option value="investments">${window.translations[currentLang].investments}</option>
+                <option value="rent">${window.translations[currentLang].rent}</option>
+                <option value="bonus">${window.translations[currentLang].bonus}</option>
             `;
         }
 
